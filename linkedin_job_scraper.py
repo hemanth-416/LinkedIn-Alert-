@@ -9,6 +9,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import json
 from io import StringIO
 
+app = Flask(__name__)  # Flask app initialized
 
 # DevOps job titles
 TARGET_TITLES_DEVOPS = [
@@ -35,9 +36,7 @@ TARGET_TITLES_CYBER = [
     "security monitoring analyst", "information security analyst", "edr analyst", "cloud security analyst",
     "azure security analyst", "aws security analyst", "IAM Analyst / Engineer / Administrator",
     "Identity & Access Specialist", "Identity Governance Analyst", "Privileged Access Management Engineer",
-    "SailPoint Developer / Consultant",
-    "Okta Administrator / IAM Engineer",
-    "Access Control Analyst",
+    "SailPoint Developer / Consultant", "Okta Administrator / IAM Engineer", "Access Control Analyst",
     "Azure IAM Engineer", "Cloud IAM Analyst"
 ]
 
@@ -48,8 +47,9 @@ EMAIL_RECEIVER_DEVOPS = os.getenv("EMAIL_RECEIVER_DEVOPS")
 EMAIL_RECEIVER_2 = os.getenv("EMAIL_RECEIVER_2")
 EMAIL_RECEIVER_EMC = "Dushyanthgala@gmail.com"
 EMAIL_RECEIVER_CYBER = "achyuth2806@gmail.com"
-EMAIL_RECEIVER_BHANU="thigullaprasad6@gmail.com"
+EMAIL_RECEIVER_BHANU = "thigullaprasad6@gmail.com"
 GOOGLE_CREDENTIALS = os.getenv("GOOGLE_CREDENTIALS")
+
 # Google Sheets setup (Sheet2 used here)
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds_dict = json.load(StringIO(GOOGLE_CREDENTIALS))
@@ -169,16 +169,16 @@ def check_new_jobs():
     # --- India Cybersecurity Jobs ---
     cyber_query = {
         "keywords": " OR ".join(TARGET_TITLES_CYBER),
-        "location": "Canada",
+        "location": "India",
         "f_TPR": "r3600",
         "sortBy": "DD"
     }
-    process_jobs(cyber_query, "Cybersecurity", "Canada")
-    process_jobs(devops_query, "DevOps", "Canada")
+    process_jobs(cyber_query, "Cybersecurity", "India")
 
+@app.route("/")
 def ping():
     check_new_jobs()
     return "✅ Checked for DevOps (Canada), EMC (India), and Cybersecurity (India) jobs."
 
-if _name_ == "_main_":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT",8080)))
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
