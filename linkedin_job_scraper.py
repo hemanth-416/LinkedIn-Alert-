@@ -23,18 +23,10 @@ TARGET_TITLES_DEVOPS = [
     "automation specialist"
 ]
 '''
-'''
-# EMC/Signal Integrity job titles
-TARGET_TITLES_EMC = [
-    "emc", "signal integrity", "emi/emc", "conducted emission", "radiated emission",
-    "pcb level emi/emc", "antenna simulations", "electromagnetics",
-    "electromagnetic simulations", "interference"
-]
-'''
 
 # Cybersecurity job titles
 TARGET_TITLES_CYBER = [
-    "Cybersecurity analyst", "SOC analyst", "incident response analyst", "threat detection analyst",
+    "Cybersecurity Engineer", "Security Engineer", "SOC Analyst", "Pentester", "GRC Analyst", "Cloud Security", "Cybersecurity Analyst", "Cyber Security SOC Analyst II", "incident response analyst", "threat detection analyst",
     "siem analyst", "splunk analyst", "qradar analyst", "sentinel analyst", "senior cybersecurity analyst",
     "security monitoring analyst", "information security analyst", "EDR analyst", "cloud security analyst",
     "Azure security analyst", "AWS security analyst", 
@@ -50,11 +42,9 @@ TARGET_TITLES_CYBER = [
 # Email configuration
 EMAIL_SENDER = os.getenv("EMAIL_SENDER")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
-EMAIL_RECEIVER_DEVOPS = os.getenv("EMAIL_RECEIVER_DEVOPS")
-EMAIL_RECEIVER_2 = os.getenv("EMAIL_RECEIVER_2")
-EMAIL_RECEIVER_EMC = "Dushyanthgala@gmail.com"
+# EMAIL_RECEIVER_DEVOPS = os.getenv("EMAIL_RECEIVER_DEVOPS")
+# EMAIL_RECEIVER_2 = os.getenv("EMAIL_RECEIVER_2")
 EMAIL_RECEIVER_CYBER = "bandisrujan@gmail.com"
-EMAIL_RECEIVER_BHANU = "thigullaprasad6@gmail.com"
 GOOGLE_CREDENTIALS = os.getenv("GOOGLE_CREDENTIALS")
 
 # Google Sheets setup (Sheet2 used here)
@@ -142,23 +132,14 @@ def process_jobs(query_params, expected_category, expected_country):
                     print("✅ Sent Cybersecurity job (United States):", title)
 
                 '''
-                # DevOps (Canada only)
+                # DevOps (USA only)
                 elif expected_category == "DevOps" and any(t in title_lower for t in TARGET_TITLES_DEVOPS) and country == expected_country:
                     send_email("🚨 New DevOps/SRE Job!", email_body, EMAIL_RECEIVER_DEVOPS)
                     send_email("🚨 New DevOps/SRE Job!", email_body, EMAIL_RECEIVER_2)
                     mark_job_as_sent(job_url, title, company, location, "DevOps", country)
                     print("✅ Sent DevOps job (Canada):", title)
                     '''
-                '''
-
-                # EMC (India only)
-                elif expected_category == "EMC" and any(t in title_lower for t in TARGET_TITLES_EMC) and country == expected_country:
-                    send_email("📡 New EMC/Signal Integrity Job!", email_body, EMAIL_RECEIVER_EMC)
-                    mark_job_as_sent(job_url, title, company, location, "EMC", country)
-                    print("✅ Sent EMC job (India):", title)
-                    '''
-
-               
+                               
 
 def check_new_jobs():
     '''
@@ -170,15 +151,6 @@ def check_new_jobs():
         "sortBy": "DD"
     }
     process_jobs(devops_query, "DevOps", "Canada")
-
-    # --- India EMC Jobs ---
-    emc_query = {
-        "keywords": " OR ".join(TARGET_TITLES_EMC),
-        "location": "India",
-        "f_TPR": "r3600",
-        "sortBy": "DD"
-    }
-    process_jobs(emc_query, "EMC", "India")
     '''
 
     # --- USA Cybersecurity Jobs ---
