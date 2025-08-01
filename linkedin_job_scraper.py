@@ -175,7 +175,7 @@ def check_new_jobs():
     }
     process_jobs(cyber_query, "Cybersecurity", "Canada")
     process_jobs(devops_query, "DevOps", "Canada")
-@app.route("/")
+
 def ping():
     check_new_jobs()
     return "✅ Checked for DevOps (Canada), EMC (India), and Cybersecurity (India) jobs."
