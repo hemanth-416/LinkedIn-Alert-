@@ -9,7 +9,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import json
 from io import StringIO
 
-app = Flask(_name_)
+app = Flask(__name__)
 
 # DevOps job titles
 TARGET_TITLES_DEVOPS = [
@@ -34,12 +34,7 @@ TARGET_TITLES_CYBER = [
     "cybersecurity analyst", "soc analyst", "incident response analyst", "threat detection analyst",
     "siem analyst", "splunk analyst", "qradar analyst", "sentinel analyst", "sr. cybersecurity analyst",
     "security monitoring analyst", "information security analyst", "edr analyst", "cloud security analyst",
-    "azure security analyst", "aws security analyst", "IAM Analyst / Engineer / Administrator",
-    "Identity & Access Specialist", "Identity Governance Analyst", "Privileged Access Management Engineer",
-    "SailPoint Developer / Consultant",
-    "Okta Administrator / IAM Engineer",
-    "Access Control Analyst",
-    "Azure IAM Engineer", "Cloud IAM Analyst"
+    "azure security analyst", "aws security analyst"
 ]
 
 # Email configuration
@@ -49,6 +44,7 @@ EMAIL_RECEIVER_DEVOPS = os.getenv("EMAIL_RECEIVER_DEVOPS")
 EMAIL_RECEIVER_2 = os.getenv("EMAIL_RECEIVER_2")
 EMAIL_RECEIVER_EMC = "Dushyanthgala@gmail.com"
 EMAIL_RECEIVER_CYBER = "achyuth2806@gmail.com"
+EMAIL_RECEIVER_CYBER1 = "achuyuth61@gmail.com"
 EMAIL_RECEIVER_BHANU="thigullaprasad6@gmail.com"
 
 # Google Sheets setup (Sheet2 used here)
@@ -57,7 +53,7 @@ SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/au
 creds_dict = json.load(StringIO(GOOGLE_CREDENTIALS))
 CREDS = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, SCOPE)
 client = gspread.authorize(CREDS)
-sheet = client.open("LinkedIn Job Tracker").worksheet("Sheet3")  # Using Sheet3
+sheet = client.open("LinkedIn Job Tracker").worksheet("Sheet2")  # Using Sheet2
 
 # LinkedIn search config
 BASE_URL = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
@@ -145,7 +141,7 @@ def process_jobs(query_params, expected_category, expected_country):
 
                 # Cybersecurity (India only)
                 elif expected_category == "Cybersecurity" and any(t in title_lower for t in TARGET_TITLES_CYBER) and country == expected_country:
-                    send_email("🛡 New Cybersecurity Job!", email_body, EMAIL_RECEIVER_CYBER)
+                    send_email("🛡️ New Cybersecurity Job!", email_body, EMAIL_RECEIVER_CYBER)
                     mark_job_as_sent(job_url, title, company, location, "Cybersecurity", country)
                     print("✅ Sent Cybersecurity job (India):", title)
 
@@ -182,5 +178,5 @@ def ping():
     check_new_jobs()
     return "✅ Checked for DevOps (Canada), EMC (India), and Cybersecurity (India) jobs."
 
-if _name_ == "_main_":
-    app.run(host="0.0.0.0", port=int(os.environment.get("PORT",8080)))
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
