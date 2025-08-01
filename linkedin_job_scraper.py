@@ -49,9 +49,8 @@ EMAIL_RECEIVER_2 = os.getenv("EMAIL_RECEIVER_2")
 EMAIL_RECEIVER_EMC = "Dushyanthgala@gmail.com"
 EMAIL_RECEIVER_CYBER = "achyuth2806@gmail.com"
 EMAIL_RECEIVER_BHANU="thigullaprasad6@gmail.com"
-
-# Google Sheets setup (Sheet2 used here)
 GOOGLE_CREDENTIALS = os.getenv("GOOGLE_CREDENTIALS")
+# Google Sheets setup (Sheet2 used here)
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds_dict = json.load(StringIO(GOOGLE_CREDENTIALS))
 CREDS = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, SCOPE)
