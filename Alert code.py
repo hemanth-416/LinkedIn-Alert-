@@ -57,7 +57,7 @@ SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/au
 creds_dict = json.load(StringIO(GOOGLE_CREDENTIALS))
 CREDS = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, SCOPE)
 client = gspread.authorize(CREDS)
-sheet = client.open("LinkedIn Job Tracker").worksheet("Sheet2")  # Using Sheet2
+sheet = client.open("LinkedIn Job Tracker").worksheet("Sheet3")  # Using Sheet3
 
 # LinkedIn search config
 BASE_URL = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
