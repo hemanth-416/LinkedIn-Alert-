@@ -43,7 +43,11 @@ TARGET_TITLES_CYBER = [
 # Email configuration
 EMAIL_SENDER = os.getenv("EMAIL_SENDER")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
+EMAIL_RECEIVER_DEVOPS = os.getenv("EMAIL_RECEIVER_DEVOPS")
+EMAIL_RECEIVER_2 = os.getenv("EMAIL_RECEIVER_2")
+EMAIL_RECEIVER_EMC = "Dushyanthgala@gmail.com"
 EMAIL_RECEIVER_CYBER = "bandisrujan@gmail.com"
+EMAIL_RECEIVER_BHANU = "thigullaprasad6@gmail.com"
 GOOGLE_CREDENTIALS = os.getenv("GOOGLE_CREDENTIALS")
 
 # Google Sheets setup (Sheet2 used here)
