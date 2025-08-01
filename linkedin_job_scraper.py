@@ -11,6 +11,7 @@ from io import StringIO
 
 app = Flask(__name__)  # Flask app initialized
 
+'''
 # DevOps job titles
 TARGET_TITLES_DEVOPS = [
     "devops engineer", "site reliability engineer", "sre", "cloud engineer",
@@ -21,13 +22,15 @@ TARGET_TITLES_DEVOPS = [
     "devsecops engineer", "infrastructure developer", "platform reliability engineer",
     "automation specialist"
 ]
-
+'''
+'''
 # EMC/Signal Integrity job titles
 TARGET_TITLES_EMC = [
     "emc", "signal integrity", "emi/emc", "conducted emission", "radiated emission",
     "pcb level emi/emc", "antenna simulations", "electromagnetics",
     "electromagnetic simulations", "interference"
 ]
+'''
 
 # Cybersecurity job titles
 TARGET_TITLES_CYBER = [
@@ -128,24 +131,30 @@ def process_jobs(query_params, expected_category, expected_country):
 
                 email_body = f"{title} at {company} — {location}\n{job_url}"
 
+                 # Cybersecurity (India only)
+                if expected_category == "Cybersecurity" and any(t in title_lower for t in TARGET_TITLES_CYBER) and country == expected_country:
+                    send_email("🛡 New Cybersecurity Job!", email_body, EMAIL_RECEIVER_CYBER)
+                    mark_job_as_sent(job_url, title, company, location, "Cybersecurity", country)
+                    print("✅ Sent Cybersecurity job (United States):", title)
+
+                '''
                 # DevOps (Canada only)
-                if expected_category == "DevOps" and any(t in title_lower for t in TARGET_TITLES_DEVOPS) and country == expected_country:
+                elif expected_category == "DevOps" and any(t in title_lower for t in TARGET_TITLES_DEVOPS) and country == expected_country:
                     send_email("🚨 New DevOps/SRE Job!", email_body, EMAIL_RECEIVER_DEVOPS)
                     send_email("🚨 New DevOps/SRE Job!", email_body, EMAIL_RECEIVER_2)
                     mark_job_as_sent(job_url, title, company, location, "DevOps", country)
                     print("✅ Sent DevOps job (Canada):", title)
+                    '''
+                '''
 
                 # EMC (India only)
                 elif expected_category == "EMC" and any(t in title_lower for t in TARGET_TITLES_EMC) and country == expected_country:
                     send_email("📡 New EMC/Signal Integrity Job!", email_body, EMAIL_RECEIVER_EMC)
                     mark_job_as_sent(job_url, title, company, location, "EMC", country)
                     print("✅ Sent EMC job (India):", title)
+                    '''
 
-                # Cybersecurity (India only)
-                elif expected_category == "Cybersecurity" and any(t in title_lower for t in TARGET_TITLES_CYBER) and country == expected_country:
-                    send_email("🛡 New Cybersecurity Job!", email_body, EMAIL_RECEIVER_CYBER)
-                    mark_job_as_sent(job_url, title, company, location, "Cybersecurity", country)
-                    print("✅ Sent Cybersecurity job (India):", title)
+               
 
 def check_new_jobs():
     # --- Canada DevOps Jobs ---
