@@ -39,7 +39,7 @@ TARGET_TITLES_CYBER = [
     "SailPoint Developer / Consultant",
     "Okta Administrator / IAM Engineer",
     "Access Control Analyst",
-    "Azure IAM Engineer", Cloud IAM Analyst"
+    "Azure IAM Engineer", "Cloud IAM Analyst"
 ]
 
 # Email configuration
