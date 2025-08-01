@@ -44,7 +44,7 @@ EMAIL_SENDER = os.getenv("EMAIL_SENDER")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 # EMAIL_RECEIVER_DEVOPS = os.getenv("EMAIL_RECEIVER_DEVOPS")
 # EMAIL_RECEIVER_2 = os.getenv("EMAIL_RECEIVER_2")
-EMAIL_RECEIVER_CYBER = "bandisrujan@gmail.com"
+EMAIL_RECEIVER_CYBER = os.getenv"EMAIL_RECEIVER_CYBER")
 GOOGLE_CREDENTIALS = os.getenv("GOOGLE_CREDENTIALS")
 
 # Google Sheets setup (Sheet2 used here)
@@ -126,7 +126,7 @@ def process_jobs(query_params, expected_category, expected_country):
                 email_body = f"{title} at {company} — {location}\n{job_url}"
 
                  # Cybersecurity (USA only)
-                if expected_category == "Cybersecurity" and any(t in title_lower for t in TARGET_TITLES_CYBER) and country == expected_country:
+                if expected_category == "Cybersecurity" and any(t.lower() in title_lower for t in TARGET_TITLES_CYBER) and country == expected_country:
                     send_email("🛡 New Cybersecurity Job!", email_body, EMAIL_RECEIVER_CYBER)
                     mark_job_as_sent(job_url, title, company, location, "Cybersecurity", country)
                     print("✅ Sent Cybersecurity job (United States):", title)
@@ -160,7 +160,7 @@ def check_new_jobs():
         "f_TPR": "r3600",
         "sortBy": "DD"
     }
-    process_jobs(cyber_query, "Cybersecurity", "India")
+    process_jobs(cyber_query, "Cybersecurity", "United States")
 
 @app.route("/")
 def ping():
