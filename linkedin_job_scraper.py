@@ -18,13 +18,11 @@ TARGET_TITLES_CYBER = [
     "SIEM analyst", "splunk analyst", "QRadar analyst", "sentinel analyst", "senior cybersecurity analyst",
     "security monitoring analyst", "information security analyst", "EDR analyst", "cloud security analyst",
     "Azure security analyst", "AWS security analyst", 
-    
-    '''
     "IAM Analyst / Engineer / Administrator",
     "Identity & Access Specialist", "Identity Governance Analyst", "Privileged Access Management Engineer",
     "SailPoint Developer / Consultant", "Okta Administrator / IAM Engineer", "Access Control Analyst",
     "Azure IAM Engineer", "Cloud IAM Analyst" 
-    '''
+    
 ]
 '''
 # DevOps job titles
@@ -125,7 +123,7 @@ def process_jobs(query_params, expected_category, expected_country):
 
                  # Cybersecurity (USA only)
                 if expected_category == "Cybersecurity" and any(t.lower() in title_lower for t in TARGET_TITLES_CYBER) and country == expected_country:
-                    send_email("🛡 New Cybersecurity Job!", email_body, EMAIL_RECEIVER_CYBER)
+                    send_email("🚨🚨🛡 New Cybersecurity Job! 🛡🚨🚨", email_body, EMAIL_RECEIVER_CYBER)
                     mark_job_as_sent(job_url, title, company, location, "Cybersecurity", country)
                     print("✅ Sent Cybersecurity job (United States):", title)
 
