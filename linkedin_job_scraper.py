@@ -183,4 +183,4 @@ def ping():
     return "✅ Checked for DevOps (Canada), EMC (India), and Cybersecurity (India) jobs."
 
 if _name_ == "_main_":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+    app.run(host="0.0.0.0", port=int(os.environment.get("PORT", 8080)))
