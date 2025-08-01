@@ -83,10 +83,8 @@ def mark_job_as_sent(job_url, title, company, location, category, country):
 
 def extract_country(location):
     location_lower = location.lower()
-    if "canada" in location_lower:
-        return "Canada"
-    elif "india" in location_lower:
-        return "India"
+    if "united states" in location_lower or "usa" in location_lower:
+        return "United States"    
     else:
         return "Other"
 
