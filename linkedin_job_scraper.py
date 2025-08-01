@@ -34,13 +34,17 @@ TARGET_TITLES_EMC = [
 
 # Cybersecurity job titles
 TARGET_TITLES_CYBER = [
-    "cybersecurity analyst", "soc analyst", "incident response analyst", "threat detection analyst",
-    "siem analyst", "splunk analyst", "qradar analyst", "sentinel analyst", "sr. cybersecurity analyst",
-    "security monitoring analyst", "information security analyst", "edr analyst", "cloud security analyst",
-    "azure security analyst", "aws security analyst", "IAM Analyst / Engineer / Administrator",
+    "Cybersecurity analyst", "SOC analyst", "incident response analyst", "threat detection analyst",
+    "siem analyst", "splunk analyst", "qradar analyst", "sentinel analyst", "senior cybersecurity analyst",
+    "security monitoring analyst", "information security analyst", "EDR analyst", "cloud security analyst",
+    "Azure security analyst", "AWS security analyst", 
+    
+    '''
+    "IAM Analyst / Engineer / Administrator",
     "Identity & Access Specialist", "Identity Governance Analyst", "Privileged Access Management Engineer",
     "SailPoint Developer / Consultant", "Okta Administrator / IAM Engineer", "Access Control Analyst",
-    "Azure IAM Engineer", "Cloud IAM Analyst"
+    "Azure IAM Engineer", "Cloud IAM Analyst" 
+    '''
 ]
 
 # Email configuration
@@ -131,7 +135,7 @@ def process_jobs(query_params, expected_category, expected_country):
 
                 email_body = f"{title} at {company} — {location}\n{job_url}"
 
-                 # Cybersecurity (India only)
+                 # Cybersecurity (USA only)
                 if expected_category == "Cybersecurity" and any(t in title_lower for t in TARGET_TITLES_CYBER) and country == expected_country:
                     send_email("🛡 New Cybersecurity Job!", email_body, EMAIL_RECEIVER_CYBER)
                     mark_job_as_sent(job_url, title, company, location, "Cybersecurity", country)
@@ -157,6 +161,7 @@ def process_jobs(query_params, expected_category, expected_country):
                
 
 def check_new_jobs():
+    '''
     # --- Canada DevOps Jobs ---
     devops_query = {
         "keywords": " OR ".join(TARGET_TITLES_DEVOPS),
@@ -174,8 +179,9 @@ def check_new_jobs():
         "sortBy": "DD"
     }
     process_jobs(emc_query, "EMC", "India")
+    '''
 
-    # --- India Cybersecurity Jobs ---
+    # --- USA Cybersecurity Jobs ---
     cyber_query = {
         "keywords": " OR ".join(TARGET_TITLES_CYBER),
         "location": "United States",
@@ -187,7 +193,7 @@ def check_new_jobs():
 @app.route("/")
 def ping():
     check_new_jobs()
-    return "✅ Checked for DevOps (Canada), EMC (India), and Cybersecurity (India) jobs."
+    return "✅ Checked for Cybersecurity (United States) jobs."
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
