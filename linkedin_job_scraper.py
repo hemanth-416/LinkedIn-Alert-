@@ -9,7 +9,6 @@ from oauth2client.service_account import ServiceAccountCredentials
 import json
 from io import StringIO
 
-app = Flask(_name_)
 
 # DevOps job titles
 TARGET_TITLES_DEVOPS = [
@@ -183,4 +182,4 @@ def ping():
     return "✅ Checked for DevOps (Canada), EMC (India), and Cybersecurity (India) jobs."
 
 if _name_ == "_main_":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT",8080)))
