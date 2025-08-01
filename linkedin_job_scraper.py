@@ -11,6 +11,21 @@ from io import StringIO
 
 app = Flask(__name__)  # Flask app initialized
 
+
+# Cybersecurity job titles
+TARGET_TITLES_CYBER = [
+    "Cybersecurity Engineer", "Security Engineer", "SOC Analyst", "Pentester", "GRC Analyst", "Cloud Security", "Cybersecurity Analyst", "Cyber Security SOC Analyst II", "incident response analyst", "threat detection analyst",
+    "SIEM analyst", "splunk analyst", "QRadar analyst", "sentinel analyst", "senior cybersecurity analyst",
+    "security monitoring analyst", "information security analyst", "EDR analyst", "cloud security analyst",
+    "Azure security analyst", "AWS security analyst", 
+    
+    '''
+    "IAM Analyst / Engineer / Administrator",
+    "Identity & Access Specialist", "Identity Governance Analyst", "Privileged Access Management Engineer",
+    "SailPoint Developer / Consultant", "Okta Administrator / IAM Engineer", "Access Control Analyst",
+    "Azure IAM Engineer", "Cloud IAM Analyst" 
+    '''
+]
 '''
 # DevOps job titles
 TARGET_TITLES_DEVOPS = [
@@ -23,21 +38,6 @@ TARGET_TITLES_DEVOPS = [
     "automation specialist"
 ]
 '''
-
-# Cybersecurity job titles
-TARGET_TITLES_CYBER = [
-    "Cybersecurity Engineer", "Security Engineer", "SOC Analyst", "Pentester", "GRC Analyst", "Cloud Security", "Cybersecurity Analyst", "Cyber Security SOC Analyst II", "incident response analyst", "threat detection analyst",
-    "siem analyst", "splunk analyst", "qradar analyst", "sentinel analyst", "senior cybersecurity analyst",
-    "security monitoring analyst", "information security analyst", "EDR analyst", "cloud security analyst",
-    "Azure security analyst", "AWS security analyst", 
-    
-    '''
-    "IAM Analyst / Engineer / Administrator",
-    "Identity & Access Specialist", "Identity Governance Analyst", "Privileged Access Management Engineer",
-    "SailPoint Developer / Consultant", "Okta Administrator / IAM Engineer", "Access Control Analyst",
-    "Azure IAM Engineer", "Cloud IAM Analyst" 
-    '''
-]
 
 # Email configuration
 EMAIL_SENDER = os.getenv("EMAIL_SENDER")
