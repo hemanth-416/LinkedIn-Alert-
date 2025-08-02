@@ -137,14 +137,14 @@ def process_jobs(query_params, expected_category, expected_country):
 
 def check_new_jobs():
     '''
-    # --- Canada DevOps Jobs ---
+    # --- USA DevOps Jobs ---
     devops_query = {
         "keywords": " OR ".join(TARGET_TITLES_DEVOPS),
-        "location": "Canada",
+        "location": locations,
         "f_TPR": "r3600",
         "sortBy": "DD"
     }
-    process_jobs(devops_query, "DevOps", "Canada")
+    process_jobs(devops_query, "DevOps", "United States")
     '''
 
     # --- USA Cybersecurity Jobs ---
