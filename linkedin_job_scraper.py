@@ -19,7 +19,7 @@ TARGET_TITLES_CYBER = [
  "senior cybersecurity analyst", "security monitoring analyst", "information security analyst", "EDR analyst", "cloud security analyst","Azure security analyst",
  "AWS security analyst", "IAM Analyst", "IAM Engineer", "IAM Administrator", "Identity & Access Specialist", "GRC Analyst", "Privileged Access Management Engineer",
  "SailPoint Developer", "SailPoint Consultant", "Okta Administrator", "Access Control Analyst", "Azure IAM Engineer", "Cloud IAM Analyst", "System Engineer",
- "System Engineer I", "System Engineer II", "System Engineer II", "System Engineer III", "Data Analyst" 
+  
     
 ]
 '''
