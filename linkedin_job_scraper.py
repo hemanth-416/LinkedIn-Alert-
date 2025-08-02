@@ -14,14 +14,12 @@ app = Flask(__name__)  # Flask app initialized
 
 # Cybersecurity job titles
 TARGET_TITLES_CYBER = [
-    "Cybersecurity Engineer", "Security Engineer", "SOC Analyst", "Pentester", "GRC Analyst", "Cloud Security", "Cybersecurity Analyst", "Cyber Security SOC Analyst II", "incident response analyst", "threat detection analyst",
-    "SIEM analyst", "splunk analyst", "QRadar analyst", "sentinel analyst", "senior cybersecurity analyst",
-    "security monitoring analyst", "information security analyst", "EDR analyst", "cloud security analyst",
-    "Azure security analyst", "AWS security analyst", 
-    "IAM Analyst / Engineer / Administrator",
-    "Identity & Access Specialist", "Identity Governance Analyst", "Privileged Access Management Engineer",
-    "SailPoint Developer / Consultant", "Okta Administrator / IAM Engineer", "Access Control Analyst",
-    "Azure IAM Engineer", "Cloud IAM Analyst" 
+ "Cybersecurity Engineer", "Security Engineer", "SOC Analyst", "SOC Analyst III", "Pentester", "GRC Analyst", "Cloud Security", "Cybersecurity Analyst",
+ "Cyber Security SOC Analyst II", "incident response analyst", "threat detection analyst", "SIEM analyst", "splunk analyst", "QRadar analyst", "sentinel analyst", 
+ "senior cybersecurity analyst", "security monitoring analyst", "information security analyst", "EDR analyst", "cloud security analyst","Azure security analyst",
+ "AWS security analyst", "IAM Analyst", "IAM Engineer", "IAM Administrator", "Identity & Access Specialist", "GRC Analyst", "Privileged Access Management Engineer",
+ "SailPoint Developer", "SailPoint Consultant", "Okta Administrator", "Access Control Analyst", "Azure IAM Engineer", "Cloud IAM Analyst", "System Engineer",
+ "System Engineer I", "System Engineer II", "System Engineer II", "System Engineer III", "Data Analyst" 
     
 ]
 '''
