@@ -148,7 +148,8 @@ def check_new_jobs():
     '''
 
     # --- USA Cybersecurity Jobs ---
-    locations = ["United States", "Kansas, United States", "Kansas City, MO", "Overland Park, KS", "Kansas City, KS",
+    locations = ["United States", "Kansas, United States", "Kansas City, MO", "Overland Park, KS", "Kansas City, KS"]
+    ''',
         "Birmingham, AL", "Anchorage, AK", "Phoenix, AZ", "Little Rock, AR", "Los Angeles, CA", "Denver, CO",
         "Hartford, CT", "Wilmington, DE", "Miami, FL", "Atlanta, GA", "Honolulu, HI", "Boise, ID",
         "Chicago, IL", "Indianapolis, IN", "Des Moines, IA", "Wichita, KS", "Louisville, KY", "New Orleans, LA",
@@ -160,6 +161,7 @@ def check_new_jobs():
         "Milwaukee, WI", "Cheyenne, WY", "San Francisco Bay Area", "New York, NY, USA", "Austin, TX, USA", "Dallas-Fort Worth Metroplex",
         "Chicago, IL", "Seattle, WA", "Atlanta, GA", "Boston, MA", "Los Angeles, CA",
         "Washington, DC-Baltimore Area", "Denver, CO", "Phoenix, AZ", "Charlotte, NC" ]
+        '''
    
     cyber_query = {
         "keywords": " OR ".join(TARGET_TITLES_CYBER),
