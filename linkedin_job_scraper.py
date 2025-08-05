@@ -147,20 +147,13 @@ def check_new_jobs():
     '''
 
     # --- USA Cybersecurity Jobs ---
-    locations = ["United States", "Overland Park, KS"]
-    ''',
-        "Kansas, United States", "Kansas City, MO", , "Kansas City, KS", "Birmingham, AL", "Anchorage, AK", "Phoenix, AZ", "Little Rock, AR", "Los Angeles, CA", "Denver, CO",
-        "Hartford, CT", "Wilmington, DE", "Miami, FL", "Atlanta, GA", "Honolulu, HI", "Boise, ID",
-        "Chicago, IL", "Indianapolis, IN", "Des Moines, IA", "Wichita, KS", "Louisville, KY", "New Orleans, LA",
-        "Portland, ME", "Baltimore, MD", "Boston, MA", "Detroit, MI", "Minneapolis, MN", "Jackson, MS",
-        "Kansas City, MO", "Billings, MT", "Omaha, NE", "Las Vegas, NV", "Manchester, NH", "Newark, NJ",
-        "Albuquerque, NM", "New York, NY", "Charlotte, NC", "Fargo, ND", "Columbus, OH", "Oklahoma City, OK",
-        "Portland, OR", "Philadelphia, PA", "Providence, RI", "Charleston, SC", "Sioux Falls, SD", "Nashville, TN",
-        "Houston, TX", "Salt Lake City, UT", "Burlington, VT", "Virginia Beach, VA", "Seattle, WA", "Charleston, WV",
-        "Milwaukee, WI", "Cheyenne, WY", "San Francisco Bay Area", "New York, NY, USA", "Austin, TX, USA", "Dallas-Fort Worth Metroplex",
+    locations = [
+        "New York, NY", "San Francisco Bay Area", "Austin, TX", "Dallas-Fort Worth Metroplex",
         "Chicago, IL", "Seattle, WA", "Atlanta, GA", "Boston, MA", "Los Angeles, CA",
-        "Washington, DC-Baltimore Area", "Denver, CO", "Phoenix, AZ", "Charlotte, NC" ]
-        '''
+        "Washington, DC-Baltimore Area", "Denver, CO", "Phoenix, AZ", "Charlotte, NC",
+        "Kansas City Metropolitan Area", "Philadelphia, PA", "Houston, TX", "Orlando, FL",
+        "Minneapolis-St. Paul, MN", "Pittsburgh, PA", "Salt Lake City, UT"
+    ]
    
     cyber_query = {
         "keywords": " OR ".join(TARGET_TITLES_CYBER),
