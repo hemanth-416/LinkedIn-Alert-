@@ -147,9 +147,9 @@ def check_new_jobs():
     '''
 
     # --- USA Cybersecurity Jobs ---
-    locations = ["United States", "Kansas, United States"]
+    locations = ["United States"]
     ''',
-        "Kansas City, MO", "Overland Park, KS", "Kansas City, KS", "Birmingham, AL", "Anchorage, AK", "Phoenix, AZ", "Little Rock, AR", "Los Angeles, CA", "Denver, CO",
+        "Kansas, United States", "Kansas City, MO", "Overland Park, KS", "Kansas City, KS", "Birmingham, AL", "Anchorage, AK", "Phoenix, AZ", "Little Rock, AR", "Los Angeles, CA", "Denver, CO",
         "Hartford, CT", "Wilmington, DE", "Miami, FL", "Atlanta, GA", "Honolulu, HI", "Boise, ID",
         "Chicago, IL", "Indianapolis, IN", "Des Moines, IA", "Wichita, KS", "Louisville, KY", "New Orleans, LA",
         "Portland, ME", "Baltimore, MD", "Boston, MA", "Detroit, MI", "Minneapolis, MN", "Jackson, MS",
