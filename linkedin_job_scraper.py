@@ -146,15 +146,16 @@ def check_new_jobs():
     process_jobs(devops_query, "DevOps", "United States")
     '''
 
-    # --- USA Cybersecurity Jobs ---
-    locations = [
-        "New York, NY", "San Francisco Bay Area", "Austin, TX", "Dallas-Fort Worth Metroplex",
-        "Chicago, IL", "Seattle, WA", "Atlanta, GA", "Boston, MA", "Los Angeles, CA",
-        "Washington, DC-Baltimore Area", "Denver, CO", "Phoenix, AZ", "Charlotte, NC",
-        "Kansas City Metropolitan Area", "Philadelphia, PA", "Houston, TX", "Orlando, FL",
-        "Minneapolis-St. Paul, MN", "Pittsburgh, PA", "Salt Lake City, UT"
-    ]
-    for loc in locations:
+   # --- USA Cybersecurity Jobs ---
+locations = [
+    "New York, NY", "San Francisco Bay Area", "Austin, TX", "Dallas-Fort Worth Metroplex",
+    "Chicago, IL", "Seattle, WA", "Atlanta, GA", "Boston, MA", "Los Angeles, CA",
+    "Washington, DC-Baltimore Area", "Denver, CO", "Phoenix, AZ", "Charlotte, NC",
+    "Kansas City Metropolitan Area", "Philadelphia, PA", "Houston, TX", "Orlando, FL",
+    "Minneapolis-St. Paul, MN", "Pittsburgh, PA", "Salt Lake City, UT"
+]
+
+for loc in locations:
     cyber_query = {
         "keywords": " OR ".join(TARGET_TITLES_CYBER),
         "location": loc,
