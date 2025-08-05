@@ -19,8 +19,7 @@ TARGET_TITLES_CYBER = [
  "senior cybersecurity analyst", "security monitoring analyst", "information security analyst", "EDR analyst", "cloud security analyst","Azure security analyst",
  "AWS security analyst", "IAM Analyst", "IAM Engineer", "IAM Administrator", "Identity & Access Specialist", "GRC Analyst", "Privileged Access Management Engineer",
  "SailPoint Developer", "SailPoint Consultant", "Okta Administrator", "Access Control Analyst", "Azure IAM Engineer", "Cloud IAM Analyst", "System Engineer",
-  
-    
+ 
 ]
 '''
 # DevOps job titles
@@ -148,9 +147,9 @@ def check_new_jobs():
     '''
 
     # --- USA Cybersecurity Jobs ---
-    locations = ["United States", "Kansas, United States", "Kansas City, MO", "Overland Park, KS", "Kansas City, KS"]
+    locations = ["United States", "Kansas, United States"]
     ''',
-        "Birmingham, AL", "Anchorage, AK", "Phoenix, AZ", "Little Rock, AR", "Los Angeles, CA", "Denver, CO",
+        "Kansas City, MO", "Overland Park, KS", "Kansas City, KS", "Birmingham, AL", "Anchorage, AK", "Phoenix, AZ", "Little Rock, AR", "Los Angeles, CA", "Denver, CO",
         "Hartford, CT", "Wilmington, DE", "Miami, FL", "Atlanta, GA", "Honolulu, HI", "Boise, ID",
         "Chicago, IL", "Indianapolis, IN", "Des Moines, IA", "Wichita, KS", "Louisville, KY", "New Orleans, LA",
         "Portland, ME", "Baltimore, MD", "Boston, MA", "Detroit, MI", "Minneapolis, MN", "Jackson, MS",
