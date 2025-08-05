@@ -154,10 +154,10 @@ def check_new_jobs():
         "Kansas City Metropolitan Area", "Philadelphia, PA", "Houston, TX", "Orlando, FL",
         "Minneapolis-St. Paul, MN", "Pittsburgh, PA", "Salt Lake City, UT"
     ]
-   
+ for loc in locations   
     cyber_query = {
         "keywords": " OR ".join(TARGET_TITLES_CYBER),
-        "location": locations,
+        "location": loc,
         "f_TPR": "r3600",
         "sortBy": "DD"
     }
@@ -170,3 +170,4 @@ def ping():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+
