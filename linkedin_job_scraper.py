@@ -154,7 +154,7 @@ def check_new_jobs():
         "Kansas City Metropolitan Area", "Philadelphia, PA", "Houston, TX", "Orlando, FL",
         "Minneapolis-St. Paul, MN", "Pittsburgh, PA", "Salt Lake City, UT"
     ]
-    for loc in locations
+    for loc in locations:
     cyber_query = {
         "keywords": " OR ".join(TARGET_TITLES_CYBER),
         "location": loc,
