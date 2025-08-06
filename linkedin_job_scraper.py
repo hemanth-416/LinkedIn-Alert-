@@ -15,7 +15,7 @@ app = Flask(__name__)
 TARGET_TITLES_CYBER = [
     "Cybersecurity Engineer", "Security Engineer", "SOC Analyst", "SOC Analyst III", "Pentester", "GRC Analyst",
     "Cloud Security", "Cybersecurity Analyst", "Cyber Security SOC Analyst II", "incident response analyst",
-    "threat detection analyst", "SIEM analyst", "Splunk analyst", "QRadar analyst", "Sentinel analyst",
+    "threat detection analyst", "SIEM analyst", "splunk analyst", "QRadar analyst", "sentinel analyst",
     "senior cybersecurity analyst", "security monitoring analyst", "information security analyst", "EDR analyst",
     "cloud security analyst", "Azure security analyst", "AWS security analyst", "IAM Analyst", "IAM Engineer",
     "IAM Administrator", "Identity & Access Specialist", "Privileged Access Management Engineer", "SailPoint Developer",
@@ -34,7 +34,7 @@ SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/au
 creds_dict = json.load(StringIO(GOOGLE_CREDENTIALS))
 CREDS = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, SCOPE)
 client = gspread.authorize(CREDS)
-sheet = client.open("LinkedIn Job Tracker").worksheet("Sheet2")
+sheet = client.open("LinkedIn Job Tracker").worksheet("Sheet3")
 
 # LinkedIn config
 BASE_URL = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
@@ -136,4 +136,3 @@ def ping():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
-
