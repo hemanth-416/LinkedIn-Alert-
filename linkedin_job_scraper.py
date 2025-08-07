@@ -13,14 +13,10 @@ app = Flask(__name__)
 
 # Cybersecurity job titles
 TARGET_TITLES_CYBER = [
-    "Cybersecurity Engineer", "Security Engineer", "SOC Analyst", "SOC Analyst III", "Pentester", "GRC Analyst",
-    "Cloud Security", "Cybersecurity Analyst", "Cyber Security SOC Analyst II", "incident response analyst",
-    "threat detection analyst", "SIEM analyst", "splunk analyst", "QRadar analyst", "sentinel analyst",
-    "senior cybersecurity analyst", "security monitoring analyst", "information security analyst", "EDR analyst",
-    "cloud security analyst", "Azure security analyst", "AWS security analyst", "IAM Analyst", "IAM Engineer",
-    "IAM Administrator", "Identity & Access Specialist", "Privileged Access Management Engineer", "SailPoint Developer",
-    "SailPoint Consultant", "Okta Administrator", "Access Control Analyst", "Azure IAM Engineer", "Cloud IAM Analyst",
-    "System Engineer", "System Engineer I", "System Engineer II", "System Engineer II", "System Engineer III", "Data Analyst"
+    "Cybersecurity Engineer", "Security Engineer", "SOC Analyst", "SOC Analyst III", "Pentester", "GRC Analyst", "IAM Analyst", "IAM Engineer", "IAM Administrator",
+    "Cloud Security", "Cybersecurity Analyst", "Cyber Security SOC Analyst II", "incident response analyst", "threat detection analyst", "SIEM analyst","Senior Cybersecurity Analyst", 
+    "security monitoring analyst", "Information Security Analyst", "Cloud Security Analyst", "Azure Security Analyst", "Identity & Access Specialist", "SailPoint Developer",
+    "SailPoint Consultant", "Azure IAM Engineer", "Cloud IAM Analyst", "System Engineer", "System Engineer I", "System Engineer II", "System Engineer III", "Data Analyst"
 ]
 
 # Email configuration
