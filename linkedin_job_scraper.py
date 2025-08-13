@@ -15,13 +15,13 @@ app = Flask(__name__)
 # Target job titles (case-insensitive match, we lower() at compare time)
 # -------------------------
 TARGET_TITLES_DATA = [
-    "devops engineer", "site reliability engineer", "sre", "cloud engineer",
+    "Data Analyst","devops engineer", "site reliability engineer", "sre", "cloud engineer",
     "aws devops engineer", "azure devops engineer", "platform engineer",
     "infrastructure engineer", "cloud operations engineer", "reliability engineer",
     "automation engineer", "cloud consultant", "build engineer", "cicd engineer",
     "systems reliability engineer", "observability engineer", "kubernetes engineer",
     "devsecops engineer", "infrastructure developer", "platform reliability engineer",
-    "automation specialist"
+    "automation specialist" 
 ]
 
 TARGET_TITLES_CYBER = [
@@ -31,7 +31,7 @@ TARGET_TITLES_CYBER = [
     "Senior Cybersecurity Analyst", "security monitoring analyst", "Information Security Analyst",
     "Cloud Security Analyst", "Azure Security Analyst", "Identity & Access Specialist", "SailPoint Developer",
     "SailPoint Consultant", "Azure IAM Engineer", "Cloud IAM Analyst", "System Engineer",
-    "System Engineer I", "System Engineer II", "System Engineer III", "Data Analyst"
+    "System Engineer I", "System Engineer II", "System Engineer III"
 ]
 
 TARGET_TITLES_ORACLE = [
@@ -47,7 +47,7 @@ EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
 # Comma-separated lists are supported; default to "" so parsing is safe
 EMAIL_RECEIVER_CYBER = os.getenv("EMAIL_RECEIVER_CYBER", "")
-EMAIL_RECEIVER_DATA = os.getenv("EMAIL_RECEIVER_DATA", "")
+EMAIL_RECEIVER_DATA = os.getenv("EMAIL_RECEIVER_DATA", "srujanbandi01@gmail.com")
 EMAIL_RECEIVER_ORACLE = os.getenv("EMAIL_RECEIVER_ORACLE", "")
 
 GOOGLE_CREDENTIALS = os.getenv("GOOGLE_CREDENTIALS")
@@ -165,7 +165,7 @@ def process_jobs(query_params, keywords, expected_category, expected_country, se
 
             if matches_any(title_lower, keywords) and country == expected_country:
                 email_body = f"{title} at {company} — {location}\n{job_url}"
-                subject = f"🔔 New {expected_category} Job"
+                subject = f"🔔 New {expected_category} Job 🔔"
                 send_email(subject, email_body, recipients)
                 mark_job_as_sent(ws, job_url, title, company, location, expected_category, country)
                 sent_urls.add(job_url)  # keep in-memory set in sync
@@ -207,7 +207,7 @@ def check_new_jobs():
 
     # DevOps / SRE / Platform (DATA list)
     run_category(
-        category_name="DevOps",
+        category_name="DevOps/Data_Analyst",
         keywords=TARGET_TITLES_DATA,
         recipients_env=EMAIL_RECEIVER_DATA,
         sheet_name=SHEET_DATA
