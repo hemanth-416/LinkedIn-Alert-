@@ -12,10 +12,10 @@ from io import StringIO
 app = Flask(__name__)
 
 # -------------------------
-# Target job titles (case-insensitive match; we lower() at compare time)
+# Target job titles (case-insensitive match, we lower() at compare time)
 # -------------------------
 TARGET_TITLES_DATA = [
-    "Data Analyst", "devops engineer", "site reliability engineer", "sre", "cloud engineer",
+    "devops engineer", "site reliability engineer", "sre", "cloud engineer",
     "aws devops engineer", "azure devops engineer", "platform engineer",
     "infrastructure engineer", "cloud operations engineer", "reliability engineer",
     "automation engineer", "cloud consultant", "build engineer", "cicd engineer",
@@ -126,18 +126,14 @@ def mark_job_as_sent(ws, job_url, title, company, location, category, country):
         print(f"❌ Error writing to sheet {ws.title}: {e}")
 
 def matches_any(title_lower: str, keywords):
+    # compare against lowered keywords
     return any(k.lower() in title_lower for k in keywords)
 
 def process_jobs(query_params, keywords, expected_category, expected_country, sent_urls, recipients, ws):
     seen_jobs = set()
     for start in range(0, 100, 25):
         query_params["start"] = start
-        try:
-            response = requests.get(BASE_URL, headers=HEADERS, params=query_params, timeout=20)
-        except requests.RequestException as e:
-            print(f"❌ Request error: {e}")
-            break
-
+        response = requests.get(BASE_URL, headers=HEADERS, params=query_params)
         if response.status_code != 200 or not response.text.strip():
             break
 
@@ -169,7 +165,7 @@ def process_jobs(query_params, keywords, expected_category, expected_country, se
 
             if matches_any(title_lower, keywords) and country == expected_country:
                 email_body = f"{title} at {company} — {location}\n{job_url}"
-                subject = f"🔔 New {expected_category} Job 🔔"
+                subject = f"🔔 New {expected_category} Job"
                 send_email(subject, email_body, recipients)
                 mark_job_as_sent(ws, job_url, title, company, location, expected_category, country)
                 sent_urls.add(job_url)  # keep in-memory set in sync
@@ -211,7 +207,7 @@ def check_new_jobs():
 
     # DevOps / SRE / Platform (DATA list)
     run_category(
-        category_name="Data-DevOps",
+        category_name="DevOps",
         keywords=TARGET_TITLES_DATA,
         recipients_env=EMAIL_RECEIVER_DATA,
         sheet_name=SHEET_DATA
