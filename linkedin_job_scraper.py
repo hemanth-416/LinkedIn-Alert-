@@ -12,23 +12,26 @@ from io import StringIO
 app = Flask(__name__)
 
 # -------------------------
-# Target job titles (case-insensitive match, we lower() at compare time)
+# Target job titles (case-insensitive match; we lower() at compare time)
 # -------------------------
 TARGET_TITLES_DATA = [
-    "Data Analyst","devops engineer", "site reliability engineer", "sre", "cloud engineer",
+    "Data Analyst", "devops engineer", "site reliability engineer", "sre", "cloud engineer",
     "aws devops engineer", "azure devops engineer", "platform engineer",
     "infrastructure engineer", "cloud operations engineer", "reliability engineer",
     "automation engineer", "cloud consultant", "build engineer", "cicd engineer",
     "systems reliability engineer", "observability engineer", "kubernetes engineer",
     "devsecops engineer", "infrastructure developer", "platform reliability engineer",
-    "automation specialist" 
+    "automation specialist"
 ]
 
 TARGET_TITLES_CYBER = [
-    "Cybersecurity Engineer", "Security Engineer", "SOC Analyst", "SOC Analyst III", "Pentester", "GRC Analyst", "IAM Analyst", "IAM Engineer", "IAM Administrator",
-    "Cloud Security", "Cybersecurity Analyst", "Cyber Security SOC Analyst II", "incident response analyst", "threat detection analyst", "SIEM analyst","Senior Cybersecurity Analyst", 
-    "security monitoring analyst", "Information Security Analyst", "Cloud Security Analyst", "Azure Security Analyst", "Identity & Access Specialist", "SailPoint Developer",
-    "SailPoint Consultant", "Azure IAM Engineer", "Cloud IAM Analyst", "System Engineer", "System Engineer I", "System Engineer II", "System Engineer III", "Data Analyst"
+    "Cybersecurity Engineer", "Security Engineer", "SOC Analyst", "SOC Analyst III", "Pentester", "GRC Analyst",
+    "IAM Analyst", "IAM Engineer", "IAM Administrator", "Cloud Security", "Cybersecurity Analyst",
+    "Cyber Security SOC Analyst II", "incident response analyst", "threat detection analyst", "SIEM analyst",
+    "Senior Cybersecurity Analyst", "security monitoring analyst", "Information Security Analyst",
+    "Cloud Security Analyst", "Azure Security Analyst", "Identity & Access Specialist", "SailPoint Developer",
+    "SailPoint Consultant", "Azure IAM Engineer", "Cloud IAM Analyst", "System Engineer",
+    "System Engineer I", "System Engineer II", "System Engineer III", "Data Analyst"
 ]
 
 TARGET_TITLES_ORACLE = [
@@ -123,14 +126,18 @@ def mark_job_as_sent(ws, job_url, title, company, location, category, country):
         print(f"❌ Error writing to sheet {ws.title}: {e}")
 
 def matches_any(title_lower: str, keywords):
-    # compare against lowered keywords
     return any(k.lower() in title_lower for k in keywords)
 
 def process_jobs(query_params, keywords, expected_category, expected_country, sent_urls, recipients, ws):
     seen_jobs = set()
     for start in range(0, 100, 25):
         query_params["start"] = start
-        response = requests.get(BASE_URL, headers=HEADERS, params=query_params)
+        try:
+            response = requests.get(BASE_URL, headers=HEADERS, params=query_params, timeout=20)
+        except requests.RequestException as e:
+            print(f"❌ Request error: {e}")
+            break
+
         if response.status_code != 200 or not response.text.strip():
             break
 
