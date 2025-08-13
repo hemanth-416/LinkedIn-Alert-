@@ -45,10 +45,10 @@ TARGET_TITLES_ORACLE = [
 EMAIL_SENDER = os.getenv("EMAIL_SENDER")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
-# Comma-separated lists are supported
-EMAIL_RECEIVER_CYBER = os.getenv("EMAIL_RECEIVER_CYBER")
-EMAIL_RECEIVER_DATA = os.getenv("EMAIL_RECEIVER_DATA")
-EMAIL_RECEIVER_ORACLE = os.getenv("EMAIL_RECEIVER_ORACLE")
+# Comma-separated lists are supported; default to "" so parsing is safe
+EMAIL_RECEIVER_CYBER = os.getenv("EMAIL_RECEIVER_CYBER", "")
+EMAIL_RECEIVER_DATA = os.getenv("EMAIL_RECEIVER_DATA", "")
+EMAIL_RECEIVER_ORACLE = os.getenv("EMAIL_RECEIVER_ORACLE", "")
 
 GOOGLE_CREDENTIALS = os.getenv("GOOGLE_CREDENTIALS")
 
@@ -91,8 +91,7 @@ def send_email(subject, body, to_emails):
     msg = MIMEText(body)
     msg["Subject"] = subject
     msg["From"] = EMAIL_SENDER
-    # For multi-recipient, SMTP uses RCPT TO; header "To" is cosmetic
-    msg["To"] = ", ".join(to_emails)
+    msg["To"] = ", ".join(to_emails)  # header only; SMTP uses RCPT TO below
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(EMAIL_SENDER, EMAIL_PASSWORD)
         server.sendmail(EMAIL_SENDER, to_emails, msg.as_string())
@@ -110,7 +109,6 @@ def load_sheet(tab_name: str):
     except gspread.WorksheetNotFound:
         sh = client.open(WORKBOOK_NAME)
         ws = sh.add_worksheet(title=tab_name, rows=1000, cols=6)
-        # Optional: add header row
         ws.append_row(["Job URL", "Title", "Company", "Location", "Category", "Country"])
         return ws
 
@@ -167,11 +165,11 @@ def process_jobs(query_params, keywords, expected_category, expected_country, se
 
             if matches_any(title_lower, keywords) and country == expected_country:
                 email_body = f"{title} at {company} — {location}\n{job_url}"
-                subject = f"🚨🚨🛡 New Job! 🛡🚨🚨"
+                subject = f"🔔 New {expected_category} Job"
                 send_email(subject, email_body, recipients)
                 mark_job_as_sent(ws, job_url, title, company, location, expected_category, country)
                 sent_urls.add(job_url)  # keep in-memory set in sync
-                print(f"✅ Sent ", New Job, " job:", title)
+                print(f"✅ Sent {expected_category} job: {title}")
 
 def run_category(category_name, keywords, recipients_env, sheet_name):
     ws = load_sheet(sheet_name)
@@ -182,7 +180,7 @@ def run_category(category_name, keywords, recipients_env, sheet_name):
         q = {
             "keywords": " OR ".join(keywords),
             "location": loc,
-            "f_TPR": "r3600",   # last hour; adjust to r86400 for 24h if you batch less often
+            "f_TPR": "r3600",   # last hour; use r86400 for 24h if you run less often
             "sortBy": "DD"
         }
         process_jobs(
@@ -207,7 +205,7 @@ def check_new_jobs():
         sheet_name=SHEET_CYBER
     )
 
-    # DevOps / SRE / Platform (your DATA list)
+    # DevOps / SRE / Platform (DATA list)
     run_category(
         category_name="DevOps",
         keywords=TARGET_TITLES_DATA,
