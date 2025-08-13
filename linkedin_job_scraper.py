@@ -25,13 +25,10 @@ TARGET_TITLES_DATA = [
 ]
 
 TARGET_TITLES_CYBER = [
-    "Cybersecurity Engineer", "Security Engineer", "SOC Analyst", "SOC Analyst III", "Pentester", "GRC Analyst",
-    "IAM Analyst", "IAM Engineer", "IAM Administrator", "Cloud Security", "Cybersecurity Analyst",
-    "Cyber Security SOC Analyst II", "incident response analyst", "threat detection analyst", "SIEM analyst",
-    "Senior Cybersecurity Analyst", "security monitoring analyst", "Information Security Analyst",
-    "Cloud Security Analyst", "Azure Security Analyst", "Identity & Access Specialist", "SailPoint Developer",
-    "SailPoint Consultant", "Azure IAM Engineer", "Cloud IAM Analyst", "System Engineer",
-    "System Engineer I", "System Engineer II", "System Engineer III"
+    "Cybersecurity Engineer", "Security Engineer", "SOC Analyst", "SOC Analyst III", "Pentester", "GRC Analyst", "IAM Analyst", "IAM Engineer", "IAM Administrator",
+    "Cloud Security", "Cybersecurity Analyst", "Cyber Security SOC Analyst II", "incident response analyst", "threat detection analyst", "SIEM analyst","Senior Cybersecurity Analyst", 
+    "security monitoring analyst", "Information Security Analyst", "Cloud Security Analyst", "Azure Security Analyst", "Identity & Access Specialist", "SailPoint Developer",
+    "SailPoint Consultant", "Azure IAM Engineer", "Cloud IAM Analyst", "System Engineer", "System Engineer I", "System Engineer II", "System Engineer III", "Data Analyst"
 ]
 
 TARGET_TITLES_ORACLE = [
@@ -47,7 +44,7 @@ EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
 # Comma-separated lists are supported; default to "" so parsing is safe
 EMAIL_RECEIVER_CYBER = os.getenv("EMAIL_RECEIVER_CYBER", "")
-EMAIL_RECEIVER_DATA = os.getenv("EMAIL_RECEIVER_DATA", "srujanbandi01@gmail.com")
+EMAIL_RECEIVER_DATA = os.getenv("EMAIL_RECEIVER_DATA", "")
 EMAIL_RECEIVER_ORACLE = os.getenv("EMAIL_RECEIVER_ORACLE", "")
 
 GOOGLE_CREDENTIALS = os.getenv("GOOGLE_CREDENTIALS")
@@ -207,7 +204,7 @@ def check_new_jobs():
 
     # DevOps / SRE / Platform (DATA list)
     run_category(
-        category_name="DevOps/Data_Analyst",
+        category_name="Data-DevOps",
         keywords=TARGET_TITLES_DATA,
         recipients_env=EMAIL_RECEIVER_DATA,
         sheet_name=SHEET_DATA
