@@ -171,7 +171,7 @@ def process_jobs(query_params, keywords, expected_category, expected_country, se
                 send_email(subject, email_body, recipients)
                 mark_job_as_sent(ws, job_url, title, company, location, expected_category, country)
                 sent_urls.add(job_url)  # keep in-memory set in sync
-                print(f"✅ Sent "🚨🚨🛡 New Job! 🛡🚨🚨" job:", title)
+                print(f"✅ Sent "New Job" job:", title)
 
 def run_category(category_name, keywords, recipients_env, sheet_name):
     ws = load_sheet(sheet_name)
