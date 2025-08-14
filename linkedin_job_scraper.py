@@ -18,33 +18,33 @@ app = Flask(__name__)
 # -------------------------
 MAX_PAGES = int(os.getenv("MAX_PAGES", 2))                 # number of pages per query (0, 25, ...). 2 is usually enough.
 PER_RUN_LOCATIONS = int(os.getenv("PER_RUN_LOCATIONS", 6)) # how many locations to query each run
-TIME_WINDOW = os.getenv("TIME_WINDOW", "r86400")           # r3600 (1h), r86400 (24h), r604800 (7d)
+TIME_WINDOW = os.getenv("TIME_WINDOW", "r3600")           # r3600 (1h), r86400 (24h), r604800 (7d)
 ENFORCE_COUNTRY = os.getenv("ENFORCE_COUNTRY", "false").lower() == "true"  # set true if you want strict country check
 
 # -------------------------
 # Target job titles
 # -------------------------
 TARGET_TITLES_DATA = [
-    "devops engineer","site reliability engineer","sre","cloud engineer","aws devops engineer",
-    "azure devops engineer","platform engineer","infrastructure engineer","cloud operations engineer",
-    "reliability engineer","automation engineer","cloud consultant","build engineer","cicd engineer",
-    "systems reliability engineer","observability engineer","kubernetes engineer","devsecops engineer",
-    "infrastructure developer","platform reliability engineer","automation specialist"
+    "Data Analyst"," Data Engineer", "DevOps Engineer", "Site Reliability Engineer", "SRE"," cloud engineer","aws devops engineer",
+    "azure devops engineer"," platform engineer"," infrastructure engineer", "cloud operations engineer",
+    "reliability engineer"," automation engineer"," cloud consultant", "build engineer","cicd engineer",
+    "systems reliability engineer"," observability engineer","kubernetes engineer","devsecops engineer",
+    "infrastructure developer", "platform reliability engineer", "automation specialist"
 ]
 
 TARGET_TITLES_CYBER = [
-    "Cybersecurity Engineer","Security Engineer","SOC Analyst","SOC Analyst III","Pentester","GRC Analyst",
-    "IAM Analyst","IAM Engineer","IAM Administrator","Cloud Security","Cybersecurity Analyst",
-    "Cyber Security SOC Analyst II","incident response analyst","threat detection analyst","SIEM analyst",
-    "Senior Cybersecurity Analyst","security monitoring analyst","Information Security Analyst",
-    "Cloud Security Analyst","Azure Security Analyst","Identity & Access Specialist","SailPoint Developer",
-    "SailPoint Consultant","Azure IAM Engineer","Cloud IAM Analyst","System Engineer",
-    "System Engineer I","System Engineer II","System Engineer III","Data Analyst"
+    "Cybersecurity Engineer", "Security Engineer", "SOC Analyst", "SOC Analyst III", "Pentester", "GRC Analyst",
+    "IAM Analyst", "IAM Engineer", "IAM Administrator", "Cloud Security", "Cybersecurity Analyst",
+    "Cyber Security SOC Analyst II", "incident response analyst", "threat detection analyst", "SIEM analyst",
+    "Senior Cybersecurity Analyst", "security monitoring analyst", "Information Security Analyst",
+    "Cloud Security Analyst", "Azure Security Analyst", "Identity & Access Specialist", "SailPoint Developer",
+    "SailPoint Consultant", "Azure IAM Engineer", "Cloud IAM Analyst", "System Engineer",
+    "System Engineer I", "System Engineer II", "System Engineer III"
 ]
 
 TARGET_TITLES_ORACLE = [
-    "Oracle Developer","OIC Developer","Oracle Cloud Engineer","Oracle Integration Cloud",
-    "Oracle Fusion Developer","Oracle HCM","Oracle ERP","OIC Consultant","Oracle Cloud Consultant"
+    "Oracle Developer", "OIC Developer", "Oracle Cloud Engineer", "Oracle Integration Cloud",
+    "Oracle Fusion Developer", "Oracle HCM", "Oracle ERP", "OIC Consultant", "Oracle Cloud Consultant"
 ]
 
 # -------------------------
@@ -260,3 +260,4 @@ def ping():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+
