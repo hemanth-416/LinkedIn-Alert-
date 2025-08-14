@@ -134,3 +134,13 @@ def ping():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+
+
+@app.route("/test_email")
+def test_email():
+    to = parse_recipients(os.getenv("TEST_EMAIL_TO", EMAIL_RECEIVER_CYBER or ""))
+    try:
+        send_email("SMTP test", "If you see this, SMTP works.", to)
+        return "✅ Test email sent"
+    except Exception as e:
+        return f"❌ SMTP failed: {e}", 500
