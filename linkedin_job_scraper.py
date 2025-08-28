@@ -112,7 +112,7 @@ def rotating_slice(seq, size, seed=None):
         return list(seq)
     if seed is None:
         # rotate by UTC hour so each hour you scan a different chunk
-        seed = datetime.now(timezone.utc)
+        seed = datetime.utcnow().hour
     start = seed % len(seq)
     # wrap-around slice
     out = seq[start:] + seq[:start]
@@ -260,5 +260,4 @@ def ping():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
-
 
