@@ -9,44 +9,42 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import json
 from io import StringIO
-from datetime import datetime, timezone  # timezone-aware
+from datetime import datetime
 
 app = Flask(__name__)
 
 # -------------------------
 # Tuning knobs to control egress
 # -------------------------
-MAX_PAGES = int(os.getenv("MAX_PAGES", 2))                  # pages per query (0, 25, ...)
-PER_RUN_LOCATIONS = int(os.getenv("PER_RUN_LOCATIONS", 6))  # metros per run
-TIME_WINDOW = os.getenv("TIME_WINDOW", "r3600")             # r3600=1h, r86400=24h, r604800=7d
-ENFORCE_COUNTRY = os.getenv("ENFORCE_COUNTRY", "false").lower() == "true"
+MAX_PAGES = int(os.getenv("MAX_PAGES", 2))                 # number of pages per query (0, 25, ...). 2 is usually enough.
+PER_RUN_LOCATIONS = int(os.getenv("PER_RUN_LOCATIONS", 6)) # how many locations to query each run
+TIME_WINDOW = os.getenv("TIME_WINDOW", "r3600")           # r3600 (1h), r86400 (24h), r604800 (7d)
+ENFORCE_COUNTRY = os.getenv("ENFORCE_COUNTRY", "false").lower() == "true"  # set true if you want strict country check
 
 # -------------------------
 # Target job titles
 # -------------------------
 TARGET_TITLES_DATA = [
-    "Data Analyst", "Data Engineer", "DevOps Engineer", "Site Reliability Engineer", "SRE",
-    "Cloud Engineer", "AWS DevOps Engineer", "Azure DevOps Engineer", "Platform Engineer",
-    "Infrastructure Engineer", "Cloud Operations Engineer", "Reliability Engineer",
-    "Automation Engineer", "Cloud Consultant", "Build Engineer", "CICD Engineer",
-    "Systems Reliability Engineer", "Observability Engineer", "Kubernetes Engineer",
-    "DevSecOps Engineer", "Infrastructure Developer", "Platform Reliability Engineer",
-    "Automation Specialist",
+    "Data Analyst"," Data Engineer", "DevOps Engineer", "Site Reliability Engineer", "SRE"," cloud engineer","aws devops engineer",
+    "azure devops engineer"," platform engineer"," infrastructure engineer", "cloud operations engineer",
+    "reliability engineer"," automation engineer"," cloud consultant", "build engineer","cicd engineer",
+    "systems reliability engineer"," observability engineer","kubernetes engineer","devsecops engineer",
+    "infrastructure developer", "platform reliability engineer", "automation specialist"
 ]
 
 TARGET_TITLES_CYBER = [
     "Cybersecurity Engineer", "Security Engineer", "SOC Analyst", "SOC Analyst III", "Pentester", "GRC Analyst",
     "IAM Analyst", "IAM Engineer", "IAM Administrator", "Cloud Security", "Cybersecurity Analyst",
-    "Cyber Security SOC Analyst II", "Incident Response Analyst", "Threat Detection Analyst", "SIEM Analyst",
-    "Senior Cybersecurity Analyst", "Security Monitoring Analyst", "Information Security Analyst",
+    "Cyber Security SOC Analyst II", "incident response analyst", "threat detection analyst", "SIEM analyst",
+    "Senior Cybersecurity Analyst", "security monitoring analyst", "Information Security Analyst",
     "Cloud Security Analyst", "Azure Security Analyst", "Identity & Access Specialist", "SailPoint Developer",
     "SailPoint Consultant", "Azure IAM Engineer", "Cloud IAM Analyst", "System Engineer",
-    "System Engineer I", "System Engineer II", "System Engineer III",
+    "System Engineer I", "System Engineer II", "System Engineer III"
 ]
 
 TARGET_TITLES_ORACLE = [
     "Oracle Developer", "OIC Developer", "Oracle Cloud Engineer", "Oracle Integration Cloud",
-    "Oracle Fusion Developer", "Oracle HCM", "Oracle ERP", "OIC Consultant", "Oracle Cloud Consultant",
+    "Oracle Fusion Developer", "Oracle HCM", "Oracle ERP", "OIC Consultant", "Oracle Cloud Consultant"
 ]
 
 # -------------------------
@@ -55,27 +53,26 @@ TARGET_TITLES_ORACLE = [
 EMAIL_SENDER = os.getenv("EMAIL_SENDER")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 EMAIL_RECEIVER_CYBER = os.getenv("EMAIL_RECEIVER_CYBER", "")
-EMAIL_RECEIVER_DATA = os.getenv("EMAIL_RECEIVER_DATA", "")
+EMAIL_RECEIVER_DATA  = os.getenv("EMAIL_RECEIVER_DATA", "")
 EMAIL_RECEIVER_ORACLE = os.getenv("EMAIL_RECEIVER_ORACLE", "")
 GOOGLE_CREDENTIALS = os.getenv("GOOGLE_CREDENTIALS")
 
-SHEET_CYBER = os.getenv("SHEET_CYBER", "Sheet3")
-SHEET_DATA = os.getenv("SHEET_DATA", "Sheet4")
+SHEET_CYBER  = os.getenv("SHEET_CYBER",  "Sheet3")
+SHEET_DATA   = os.getenv("SHEET_DATA",   "Sheet4")
 SHEET_ORACLE = os.getenv("SHEET_ORACLE", "Sheet5")
-WORKBOOK_NAME = os.getenv("WORKBOOK_NAME", "LinkedIn Job Tracker")
 
-# Google Sheets setup
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds_dict = json.loads(GOOGLE_CREDENTIALS) if GOOGLE_CREDENTIALS else {}
+creds_dict = json.load(StringIO(GOOGLE_CREDENTIALS))
 CREDS = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, SCOPE)
 client = gspread.authorize(CREDS)
+WORKBOOK_NAME = os.getenv("WORKBOOK_NAME", "LinkedIn Job Tracker")
 
 # -------------------------
 # LinkedIn config
 # -------------------------
 BASE_URL = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
 
-def make_session() -> requests.Session:
+def make_session():
     s = requests.Session()
     retries = Retry(
         total=3, connect=3, read=3,
@@ -99,41 +96,36 @@ def make_session() -> requests.Session:
 SESSION = make_session()
 
 # -------------------------
-# Locations — rotate a slice per run (no utcnow)
+# Locations — we’ll rotate a slice per run
 # -------------------------
 LOCATIONS_US = [
-    "New York, NY", "San Francisco Bay Area", "Austin, TX", "Dallas-Fort Worth Metroplex",
-    "Chicago, IL", "Seattle, WA", "Atlanta, GA", "Boston, MA", "Los Angeles, CA",
-    "Washington, DC-Baltimore Area", "Denver, CO", "Phoenix, AZ", "Charlotte, NC",
-    "Kansas City Metropolitan Area", "Philadelphia, PA", "Houston, TX", "Orlando, FL",
-    "Minneapolis-St. Paul, MN", "Pittsburgh, PA", "Salt Lake City, UT",
+    "New York, NY","San Francisco Bay Area","Austin, TX","Dallas-Fort Worth Metroplex",
+    "Chicago, IL","Seattle, WA","Atlanta, GA","Boston, MA","Los Angeles, CA",
+    "Washington, DC-Baltimore Area","Denver, CO","Phoenix, AZ","Charlotte, NC",
+    "Kansas City Metropolitan Area","Philadelphia, PA","Houston, TX","Orlando, FL",
+    "Minneapolis-St. Paul, MN","Pittsburgh, PA","Salt Lake City, UT"
 ]
 
-def rotating_slice(seq, size, seed: int | None = None):
-    """Return a deterministic slice of `seq` of length `size`, rotated by UTC hour."""
-    if not seq:
-        return []
+def rotating_slice(seq, size, seed=None):
+    """Return a deterministic slice of `seq` of length `size` rotating over time."""
     if size >= len(seq):
         return list(seq)
     if seed is None:
-        seed = datetime.now(timezone.utc).hour  # timezone-aware
+        # rotate by UTC hour so each hour you scan a different chunk
+        seed = datetime.utcnow().hour
     start = seed % len(seq)
+    # wrap-around slice
     out = seq[start:] + seq[:start]
     return out[:size]
 
 # -------------------------
 # Helpers
 # -------------------------
-HEADER_ROW = ["Job URL", "Title", "Company", "Location", "Category", "Country"]
-
 def parse_recipients(emails_str: str):
     return [e.strip() for e in emails_str.split(",") if e.strip()]
 
-def send_email(subject: str, body: str, to_emails: list[str]):
+def send_email(subject, body, to_emails):
     if not to_emails:
-        return
-    if not EMAIL_SENDER or not EMAIL_PASSWORD:
-        print("⚠️ EMAIL_SENDER or EMAIL_PASSWORD not set; skipping send.")
         return
     msg = MIMEText(body)
     msg["Subject"] = subject
@@ -149,48 +141,34 @@ def extract_country(location: str):
         return "United States"
     return "Other"
 
-def ensure_header(ws):
-    """Ensure row 1 contains the expected header before inserting data at row 2."""
-    try:
-        first_row = ws.row_values(1)
-    except Exception:
-        first_row = []
-    if first_row != HEADER_ROW:
-        if first_row:
-            ws.delete_rows(1)
-        ws.insert_row(HEADER_ROW, index=1)
-
 def load_sheet(tab_name: str):
     try:
-        ws = client.open(WORKBOOK_NAME).worksheet(tab_name)
+        return client.open(WORKBOOK_NAME).worksheet(tab_name)
     except gspread.WorksheetNotFound:
         sh = client.open(WORKBOOK_NAME)
-        ws = sh.add_worksheet(title=tab_name, rows=1000, cols=len(HEADER_ROW))
-    ensure_header(ws)
-    return ws
+        ws = sh.add_worksheet(title=tab_name, rows=1000, cols=6)
+        ws.append_row(["Job URL", "Title", "Company", "Location", "Category", "Country"])
+        return ws
 
 def preload_urls(ws):
-    """Return a set of existing Job URL values (skip header row)."""
     try:
-        col = ws.col_values(1)
-        return set(col[1:]) if col else set()
+        return set(ws.col_values(1))
     except Exception as e:
         print(f"❌ Error loading URLs from {ws.title}: {e}")
         return set()
 
 def mark_job_as_sent(ws, job_url, title, company, location, category, country):
-    """Insert newest job at row 2 (keeps header in row 1)."""
     try:
-        ensure_header(ws)
-        ws.insert_row([job_url, title, company, location, category, country], index=2)
+        ws.append_row([job_url, title, company, location, category, country])
     except Exception as e:
         print(f"❌ Error writing to sheet {ws.title}: {e}")
 
-def matches_any(title_lower: str, keywords: list[str]):
+def matches_any(title_lower: str, keywords):
     return any(k.lower() in title_lower for k in keywords)
 
-def process_jobs(query_params, keywords, category, expected_country, sent_urls: set, recipients: list[str], ws):
+def process_jobs(query_params, keywords, category, expected_country, sent_urls, recipients, ws):
     seen_jobs = set()
+    # Only fetch up to MAX_PAGES pages
     for page_idx in range(MAX_PAGES):
         query_params["start"] = page_idx * 25
         try:
@@ -200,11 +178,13 @@ def process_jobs(query_params, keywords, category, expected_country, sent_urls: 
             break
 
         if resp.status_code != 200 or not resp.text.strip():
+            # stop if this page failed/empty
             break
 
         soup = BeautifulSoup(resp.text, "html.parser")
         cards = soup.find_all("li")
         if not cards:
+            # no more results; stop paginating
             break
 
         for card in cards:
@@ -215,14 +195,14 @@ def process_jobs(query_params, keywords, category, expected_country, sent_urls: 
             if not (link_tag and title_tag and company_tag):
                 continue
 
-            job_url = link_tag["href"].strip().split("?")[0]
+            job_url = link_tag['href'].strip().split('?')[0]
             title = title_tag.get_text(strip=True)
             title_lower = title.lower()
             company = company_tag.get_text(strip=True)
             location = location_tag.get_text(strip=True) if location_tag else "Unknown"
             country = extract_country(location)
 
-            # de-dupe across run + sheet
+            # in-run dedupe + sheet-dedupe
             dedup_key = f"{title_lower}::{company.lower()}"
             if dedup_key in seen_jobs or job_url in sent_urls:
                 continue
@@ -237,33 +217,32 @@ def process_jobs(query_params, keywords, category, expected_country, sent_urls: 
                 sent_urls.add(job_url)
                 print(f"✅ Sent {category} job: {title}")
 
-def run_category(category_name: str, keywords: list[str], recipients_env: str, sheet_name: str):
+def run_category(category_name, keywords, recipients_env, sheet_name):
     ws = load_sheet(sheet_name)
     sent_urls = preload_urls(ws)
     recipients = parse_recipients(recipients_env)
     if not recipients:
         print(f"⚠️ No recipients configured for {category_name}. Set EMAIL_RECEIVER_* env.")
+        # still write to sheet even if no email; continue
 
-    # normalize keywords
-    cleaned_keywords = [k.strip() for k in keywords if k and k.strip()]
-
-    # rotate a small slice of locations to reduce requests
+    # rotate a small slice of locations to reduce requests each run
     locations = rotating_slice(LOCATIONS_US, PER_RUN_LOCATIONS)
+
     for loc in locations:
         q = {
-            "keywords": " OR ".join(cleaned_keywords),
+            "keywords": " OR ".join(keywords),
             "location": loc,
-            "f_TPR": TIME_WINDOW,
-            "sortBy": "DD",
+            "f_TPR": TIME_WINDOW,   # wider window, fewer pages/locations needed
+            "sortBy": "DD"
         }
         process_jobs(
             query_params=q,
-            keywords=cleaned_keywords,
+            keywords=keywords,
             category=category_name,
             expected_country="United States",
             sent_urls=sent_urls,
             recipients=recipients,
-            ws=ws,
+            ws=ws
         )
 
 # -------------------------
@@ -271,28 +250,13 @@ def run_category(category_name: str, keywords: list[str], recipients_env: str, s
 # -------------------------
 def check_new_jobs():
     run_category("Cybersecurity", TARGET_TITLES_CYBER, EMAIL_RECEIVER_CYBER, SHEET_CYBER)
-    run_category("DevOps", TARGET_TITLES_DATA, EMAIL_RECEIVER_DATA, SHEET_DATA)
-    run_category("Oracle", TARGET_TITLES_ORACLE, EMAIL_RECEIVER_ORACLE, SHEET_ORACLE)
+    run_category("DevOps",        TARGET_TITLES_DATA,  EMAIL_RECEIVER_DATA,  SHEET_DATA)
+    run_category("Oracle",        TARGET_TITLES_ORACLE,EMAIL_RECEIVER_ORACLE,SHEET_ORACLE)
 
-# -------------------------
-# Routes
-# -------------------------
-@app.route("/", methods=["GET"])
-def health():
-    # Fast health check (no network)
-    return "OK"
-
-@app.route("/run", methods=["POST", "GET"])
-def run():
-    try:
-        check_new_jobs()
-        return "✅ Scrape complete"
-    except OSError as e:
-        # e.g., [Errno 101] Network is unreachable
-        return f"❌ Network error during scrape: {e}", 503
-    except Exception as e:
-        return f"❌ Unexpected error: {e}", 500
+@app.route("/")
+def ping():
+    check_new_jobs()
+    return "✅ Checked Cybersecurity, DevOps, and Oracle jobs with low-egress settings."
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8080))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
