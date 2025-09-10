@@ -219,4 +219,27 @@ def run_category(category_name, keywords, recipients_env, sheet_name):
     if not recipients:
         print(f"⚠️ No recipients for {category_name}")
     for loc in rotating_slice(LOCATIONS_US, PER_RUN_LOCATIONS):
-        q = {"keywords":" OR ".join(keywords),"location":loc,"f_TPR":TIME_WINDOW,"
+        q = {"keywords":" OR ".join(keywords),"location":loc,"f_TPR":TIME_WINDOW,"sortBy":"DD"}
+        process_jobs(q, keywords, category_name, "United States", sent_urls, recipients, ws)
+
+# -------------------------
+# Orchestration
+# -------------------------
+def check_new_jobs():
+    run_category("Cybersecurity", TARGET_TITLES_CYBER, EMAIL_RECEIVER_CYBER, SHEET_CYBER)
+    run_category("DevOps",        TARGET_TITLES_DATA,  EMAIL_RECEIVER_DATA,  SHEET_DATA)
+    run_category("Oracle",        TARGET_TITLES_ORACLE,EMAIL_RECEIVER_ORACLE,SHEET_ORACLE)
+
+@app.route("/", methods=["GET","HEAD"])
+def ping():
+    if request.method == "HEAD":
+        return "", 200  # Railway health check
+    try:
+        check_new_jobs()
+        return "✅ Checked Cybersecurity, DevOps, and Oracle jobs."
+    except Exception as e:
+        traceback.print_exc()
+        return f"❌ Error: {e}", 500
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
