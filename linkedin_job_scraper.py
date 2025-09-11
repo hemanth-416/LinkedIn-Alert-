@@ -1,5 +1,6 @@
 import os
 import smtplib
+import time
 from email.mime.text import MIMEText
 import requests
 from bs4 import BeautifulSoup
@@ -12,7 +13,7 @@ from io import StringIO
 app = Flask(__name__)
 
 # -------------------------
-# Target job titles (case-insensitive match; we lower() at compare time)
+# Job title categories
 # -------------------------
 TARGET_TITLES_DATA = [
     "Data Analyst", "devops engineer", "site reliability engineer", "sre", "cloud engineer",
@@ -25,13 +26,14 @@ TARGET_TITLES_DATA = [
 ]
 
 TARGET_TITLES_CYBER = [
-    "Cybersecurity Engineer", "Security Engineer", "SOC Analyst", "SOC Analyst III", "Pentester", "GRC Analyst",
-    "IAM Analyst", "IAM Engineer", "IAM Administrator", "Cloud Security", "Cybersecurity Analyst",
-    "Cyber Security SOC Analyst II", "incident response analyst", "threat detection analyst", "SIEM analyst",
+    "Cybersecurity Engineer", "Security Engineer", "SOC Analyst", "SOC Analyst III",
+    "Pentester", "GRC Analyst", "IAM Analyst", "IAM Engineer", "IAM Administrator",
+    "Cloud Security", "Cybersecurity Analyst", "Cyber Security SOC Analyst II",
+    "incident response analyst", "threat detection analyst", "SIEM analyst",
     "Senior Cybersecurity Analyst", "security monitoring analyst", "Information Security Analyst",
-    "Cloud Security Analyst", "Azure Security Analyst", "Identity & Access Specialist", "SailPoint Developer",
-    "SailPoint Consultant", "Azure IAM Engineer", "Cloud IAM Analyst", "System Engineer",
-    "System Engineer I", "System Engineer II", "System Engineer III", "Data Analyst"
+    "Cloud Security Analyst", "Azure Security Analyst", "Identity & Access Specialist",
+    "SailPoint Developer", "SailPoint Consultant", "Azure IAM Engineer", "Cloud IAM Analyst",
+    "System Engineer", "System Engineer I", "System Engineer II", "System Engineer III", "Data Analyst"
 ]
 
 TARGET_TITLES_ORACLE = [
@@ -40,37 +42,26 @@ TARGET_TITLES_ORACLE = [
 ]
 
 # -------------------------
-# Email / Google Sheets config (env-driven)
+# Config (environment-driven)
 # -------------------------
 EMAIL_SENDER = os.getenv("EMAIL_SENDER")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
-# Comma-separated lists are supported; default to "" so parsing is safe
 EMAIL_RECEIVER_CYBER = os.getenv("EMAIL_RECEIVER_CYBER", "")
 EMAIL_RECEIVER_DATA = os.getenv("EMAIL_RECEIVER_DATA", "")
 EMAIL_RECEIVER_ORACLE = os.getenv("EMAIL_RECEIVER_ORACLE", "")
 
 GOOGLE_CREDENTIALS = os.getenv("GOOGLE_CREDENTIALS")
 
-# Sheet tab names (you can override via env)
 SHEET_CYBER = os.getenv("SHEET_CYBER", "Sheet3")
 SHEET_DATA = os.getenv("SHEET_DATA", "Sheet4")
 SHEET_ORACLE = os.getenv("SHEET_ORACLE", "Sheet5")
 
-# Google Sheets setup
-SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds_dict = json.load(StringIO(GOOGLE_CREDENTIALS))
-CREDS = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, SCOPE)
-client = gspread.authorize(CREDS)
-
-# Open workbook (change the file name if needed)
 WORKBOOK_NAME = os.getenv("WORKBOOK_NAME", "LinkedIn Job Tracker")
 
-# LinkedIn config
 BASE_URL = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
 HEADERS = {"User-Agent": "Mozilla/5.0"}
 
-# Common locations (metro-level names LinkedIn recognizes)
 LOCATIONS_US = [
     "New York, NY", "San Francisco Bay Area", "Austin, TX", "Dallas-Fort Worth Metroplex",
     "Chicago, IL", "Seattle, WA", "Atlanta, GA", "Boston, MA", "Los Angeles, CA",
@@ -80,21 +71,37 @@ LOCATIONS_US = [
 ]
 
 # -------------------------
+# Google Sheets setup
+# -------------------------
+SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+creds_dict = json.load(StringIO(GOOGLE_CREDENTIALS))
+CREDS = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, SCOPE)
+client = gspread.authorize(CREDS)
+
+# -------------------------
 # Helpers
 # -------------------------
 def parse_recipients(emails_str: str):
     return [e.strip() for e in emails_str.split(",") if e.strip()]
 
-def send_email(subject, body, to_emails):
+def send_email(subject, body, to_emails, retries=3):
     if not to_emails:
         return
     msg = MIMEText(body)
     msg["Subject"] = subject
     msg["From"] = EMAIL_SENDER
-    msg["To"] = ", ".join(to_emails)  # header only; SMTP uses RCPT TO below
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-        server.login(EMAIL_SENDER, EMAIL_PASSWORD)
-        server.sendmail(EMAIL_SENDER, to_emails, msg.as_string())
+    msg["To"] = ", ".join(to_emails)
+    
+    for attempt in range(retries):
+        try:
+            with smtplib.SMTP_SSL("smtp.gmail.com", 587, timeout=20) as server:
+                server.login(EMAIL_SENDER, EMAIL_PASSWORD)
+                server.sendmail(EMAIL_SENDER, to_emails, msg.as_string())
+            return
+        except Exception as e:
+            print(f"❌ Email send failed (attempt {attempt+1}/{retries}): {e}")
+            time.sleep(2 * (attempt + 1))  # backoff
+    print("❌ Giving up on sending email after retries.")
 
 def extract_country(location):
     loc = (location or "").lower()
@@ -103,7 +110,6 @@ def extract_country(location):
     return "Other"
 
 def load_sheet(tab_name: str):
-    # Create worksheet if it doesn't exist
     try:
         return client.open(WORKBOOK_NAME).worksheet(tab_name)
     except gspread.WorksheetNotFound:
@@ -121,7 +127,8 @@ def preload_urls(ws):
 
 def mark_job_as_sent(ws, job_url, title, company, location, category, country):
     try:
-        ws.append_row([job_url, title, company, location, category, country])
+        # Insert at top (row 2) to keep newest jobs at the top
+        ws.insert_row([job_url, title, company, location, category, country], index=2)
     except Exception as e:
         print(f"❌ Error writing to sheet {ws.title}: {e}")
 
@@ -172,7 +179,7 @@ def process_jobs(query_params, keywords, expected_category, expected_country, se
                 subject = f"🔔 New {expected_category} Job 🔔"
                 send_email(subject, email_body, recipients)
                 mark_job_as_sent(ws, job_url, title, company, location, expected_category, country)
-                sent_urls.add(job_url)  # keep in-memory set in sync
+                sent_urls.add(job_url)
                 print(f"✅ Sent {expected_category} job: {title}")
 
 def run_category(category_name, keywords, recipients_env, sheet_name):
@@ -184,7 +191,7 @@ def run_category(category_name, keywords, recipients_env, sheet_name):
         q = {
             "keywords": " OR ".join(keywords),
             "location": loc,
-            "f_TPR": "r3600",   # last hour; use r86400 for 24h if you run less often
+            "f_TPR": "r3600",
             "sortBy": "DD"
         }
         process_jobs(
@@ -201,29 +208,9 @@ def run_category(category_name, keywords, recipients_env, sheet_name):
 # Orchestration
 # -------------------------
 def check_new_jobs():
-    # Cybersecurity
-    run_category(
-        category_name="Cybersecurity",
-        keywords=TARGET_TITLES_CYBER,
-        recipients_env=EMAIL_RECEIVER_CYBER,
-        sheet_name=SHEET_CYBER
-    )
-
-    # DevOps / SRE / Platform (DATA list)
-    run_category(
-        category_name="Data-DevOps",
-        keywords=TARGET_TITLES_DATA,
-        recipients_env=EMAIL_RECEIVER_DATA,
-        sheet_name=SHEET_DATA
-    )
-
-    # Oracle roles
-    run_category(
-        category_name="Oracle",
-        keywords=TARGET_TITLES_ORACLE,
-        recipients_env=EMAIL_RECEIVER_ORACLE,
-        sheet_name=SHEET_ORACLE
-    )
+    run_category("Cybersecurity", TARGET_TITLES_CYBER, EMAIL_RECEIVER_CYBER, SHEET_CYBER)
+    run_category("Data-DevOps",   TARGET_TITLES_DATA,  EMAIL_RECEIVER_DATA,  SHEET_DATA)
+    run_category("Oracle",        TARGET_TITLES_ORACLE,EMAIL_RECEIVER_ORACLE,SHEET_ORACLE)
 
 @app.route("/")
 def ping():
