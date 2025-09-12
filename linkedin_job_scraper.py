@@ -94,7 +94,7 @@ def send_email(subject, body, to_emails, retries=3):
     
     for attempt in range(retries):
         try:
-            with smtplib.SMTP_SSL("smtp.gmail.com", 587, timeout=20) as server:
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=20) as server:
                 server.login(EMAIL_SENDER, EMAIL_PASSWORD)
                 server.sendmail(EMAIL_SENDER, to_emails, msg.as_string())
             return
@@ -219,3 +219,4 @@ def ping():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+
