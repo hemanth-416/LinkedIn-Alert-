@@ -106,18 +106,6 @@ LOCATIONS_US = [
     "Minneapolis-St. Paul, MN","Pittsburgh, PA","Salt Lake City, UT"
 ]
 
-def rotating_slice(seq, size, seed=None):
-    """Return a deterministic slice of `seq` of length `size` rotating over time."""
-    if size >= len(seq):
-        return list(seq)
-    if seed is None:
-        # rotate by UTC hour so each hour you scan a different chunk
-        seed = datetime.utcnow().hour
-    start = seed % len(seq)
-    # wrap-around slice
-    out = seq[start:] + seq[:start]
-    return out[:size]
-
 # -------------------------
 # Helpers
 # -------------------------
@@ -260,3 +248,4 @@ def ping():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+
