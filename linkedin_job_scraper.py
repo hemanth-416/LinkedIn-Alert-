@@ -35,8 +35,8 @@ creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
 CREDS = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, SCOPE)
 client = gspread.authorize(CREDS)
 
-job_sheet = client.open("LinkedIn Job Tracker").worksheet("Sheet2")
-user_sheet = client.open("LinkedIn Job Tracker").worksheet("Sheet6")
+job_sheet = client.open("LinkedIn Job Tracker").worksheet("Sheet7")
+user_sheet = client.open("LinkedIn Job Tracker").worksheet("Sheet8")
 
 # =========================
 # USERS (NO DUPLICATES)
