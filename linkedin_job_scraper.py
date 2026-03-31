@@ -283,6 +283,10 @@ def webhook():
 
     return "", 200
 
+@app.route("/")
+def home():
+    return "App is running"
+
 # =========================
 # SUCCESS
 # =========================
