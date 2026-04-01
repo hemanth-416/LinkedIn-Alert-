@@ -91,7 +91,7 @@ def load_users_from_sheet(user_sheet):
         email = normalize_email(row[0])
         titles_raw = row[1].strip()
 
-        # Skip header row
+        # Skip header rows
         if email == "email" or titles_raw.lower() == "titles":
             continue
 
@@ -272,7 +272,6 @@ def process_jobs():
     cards = soup.find_all("li")
     logger.info(f"Found {len(cards)} LinkedIn cards")
 
-    # Read sent URLs once to avoid Google Sheets quota errors
     try:
         sent_urls = set(job_sheet.col_values(1))
     except Exception:
@@ -311,10 +310,14 @@ def process_jobs():
             company = company_tag.get_text(strip=True)
             location = location_tag.get_text(strip=True) if location_tag else JOB_LOCATION
 
+            logger.info(f"Scraped title: {title}")
+
             matched_users = []
             for user in users:
                 if any(t in title for t in user["titles"]):
                     matched_users.append(user["email"])
+
+            logger.info(f"Matched users for title '{title}': {matched_users}")
 
             if not matched_users:
                 continue
@@ -328,7 +331,6 @@ def process_jobs():
                 f"Link: {job_url}"
             )
 
-            # Save first so scraping result is preserved even if email is slow/fails
             try:
                 job_sheet.append_row([job_url, title, company, location])
                 sent_urls.add(job_url)
@@ -337,8 +339,6 @@ def process_jobs():
             except Exception:
                 logger.exception(f"Error saving job {job_url}")
                 continue
-
-            logger.info(f"Matched users for job {job_url}: {matched_users}")
 
             for email in matched_users:
                 if send_email("🚨 Job Alert", body, email):
