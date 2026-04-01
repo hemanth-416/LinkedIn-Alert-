@@ -89,15 +89,22 @@ def load_users():
         users = []
 
         for row in rows:
-            if len(row) >= 2:
-                email = normalize_email(row[0])
-                titles = normalize_titles(row[1])
+            if len(row) < 2:
+                continue
 
-                if email and titles:
-                    users.append({
-                        "email": email,
-                        "titles": titles
-                    })
+            email = normalize_email(row[0])
+            titles_raw = row[1].strip()
+
+            if email == "email" or titles_raw.lower() == "titles":
+                continue
+
+            titles = normalize_titles(titles_raw)
+
+            if email and titles:
+                users.append({
+                    "email": email,
+                    "titles": titles
+                })
 
         logger.info(f"Loaded {len(users)} users from sheet")
         return users
@@ -152,7 +159,7 @@ def send_email(subject, body, to_email):
         msg["From"] = EMAIL_SENDER
         msg["To"] = to_email
 
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15) as server:
             server.login(EMAIL_SENDER, EMAIL_PASSWORD)
             server.send_message(msg)
 
@@ -162,7 +169,6 @@ def send_email(subject, body, to_email):
     except Exception as e:
         logger.exception(f"Failed to send email to {to_email}")
         return False
-
 
 # =========================
 # JOB DEDUP
@@ -314,6 +320,11 @@ def process_jobs():
 
             if mark_job_as_sent(job_url, title, company, location):
                 jobs_saved += 1
+
+            logger.info(f"Matched users for job {job_url}: {matched_users}")
+            emails_sent += 0
+
+            emails_sent += successful_email_sends
 
         except Exception as e:
             logger.exception("Error processing a job card")
