@@ -297,7 +297,7 @@ def success():
 # =========================
 # RUN JOBS
 # =========================
-@app.route("/")
+@app.route("/run-jobs")
 def run_jobs():
     process_jobs()
     return "Jobs processed"
