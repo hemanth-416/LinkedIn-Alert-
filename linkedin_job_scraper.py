@@ -50,22 +50,20 @@ if not EMAIL_PASSWORD:
 # =========================
 # GOOGLE SHEETS HELPERS
 # =========================
+def get_gspread_client():
+    creds_dict = json.loads(GOOGLE_CREDENTIALS)
+    creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
+
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, SCOPE)
+    return gspread.authorize(creds)
+
+
 def get_sheets():
-    try:
-        creds_dict = json.loads(GOOGLE_CREDENTIALS)
-        creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
-
-        creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, SCOPE)
-        client = gspread.authorize(creds)
-
-        spreadsheet = client.open(SPREADSHEET_NAME)
-        job_sheet = spreadsheet.worksheet(JOB_SHEET_NAME)
-        user_sheet = spreadsheet.worksheet(USER_SHEET_NAME)
-
-        return job_sheet, user_sheet
-    except Exception as e:
-        logger.exception("Failed to connect to Google Sheets")
-        raise
+    client = get_gspread_client()
+    spreadsheet = client.open(SPREADSHEET_NAME)
+    job_sheet = spreadsheet.worksheet(JOB_SHEET_NAME)
+    user_sheet = spreadsheet.worksheet(USER_SHEET_NAME)
+    return job_sheet, user_sheet
 
 
 # =========================
@@ -82,36 +80,31 @@ def normalize_titles(titles_str: str) -> list[str]:
 # =========================
 # USERS
 # =========================
-def load_users():
-    try:
-        _, user_sheet = get_sheets()
-        rows = user_sheet.get_all_values()
-        users = []
+def load_users_from_sheet(user_sheet):
+    rows = user_sheet.get_all_values()
+    users = []
 
-        for row in rows:
-            if len(row) < 2:
-                continue
+    for row in rows:
+        if len(row) < 2:
+            continue
 
-            email = normalize_email(row[0])
-            titles_raw = row[1].strip()
+        email = normalize_email(row[0])
+        titles_raw = row[1].strip()
 
-            if email == "email" or titles_raw.lower() == "titles":
-                continue
+        # Skip header row
+        if email == "email" or titles_raw.lower() == "titles":
+            continue
 
-            titles = normalize_titles(titles_raw)
+        titles = normalize_titles(titles_raw)
 
-            if email and titles:
-                users.append({
-                    "email": email,
-                    "titles": titles
-                })
+        if email and titles:
+            users.append({
+                "email": email,
+                "titles": titles
+            })
 
-        logger.info(f"Loaded {len(users)} users from sheet")
-        return users
-
-    except Exception as e:
-        logger.exception("Error loading users")
-        return []
+    logger.info(f"Loaded {len(users)} users from sheet")
+    return users
 
 
 def save_user(email, titles):
@@ -144,7 +137,7 @@ def save_user(email, titles):
         logger.info(f"Added new user: {email}")
         return True
 
-    except Exception as e:
+    except Exception:
         logger.exception(f"Error saving user {email}")
         return False
 
@@ -166,31 +159,8 @@ def send_email(subject, body, to_email):
         logger.info(f"Email sent to {to_email}")
         return True
 
-    except Exception as e:
+    except Exception:
         logger.exception(f"Failed to send email to {to_email}")
-        return False
-
-# =========================
-# JOB DEDUP
-# =========================
-def job_already_sent(job_url):
-    try:
-        job_sheet, _ = get_sheets()
-        sent_urls = job_sheet.col_values(1)
-        return job_url in sent_urls
-    except Exception as e:
-        logger.exception("Error checking whether job was already sent")
-        return False
-
-
-def mark_job_as_sent(job_url, title, company, location):
-    try:
-        job_sheet, _ = get_sheets()
-        job_sheet.append_row([job_url, title, company, location])
-        logger.info(f"Saved job to sheet: {job_url}")
-        return True
-    except Exception as e:
-        logger.exception(f"Error saving job {job_url}")
         return False
 
 
@@ -200,7 +170,38 @@ def mark_job_as_sent(job_url, title, company, location):
 def process_jobs():
     logger.info("Starting job processing")
 
-    users = load_users()
+    try:
+        job_sheet, user_sheet = get_sheets()
+    except Exception:
+        logger.exception("Failed to connect to Google Sheets")
+        return {
+            "status": "sheet_connection_failed",
+            "users_loaded": 0,
+            "titles_found": 0,
+            "cards_found": 0,
+            "matched_jobs": 0,
+            "jobs_saved": 0,
+            "emails_sent": 0,
+            "skipped_duplicates": 0,
+            "skipped_missing_fields": 0,
+        }
+
+    try:
+        users = load_users_from_sheet(user_sheet)
+    except Exception:
+        logger.exception("Error loading users")
+        return {
+            "status": "user_load_failed",
+            "users_loaded": 0,
+            "titles_found": 0,
+            "cards_found": 0,
+            "matched_jobs": 0,
+            "jobs_saved": 0,
+            "emails_sent": 0,
+            "skipped_duplicates": 0,
+            "skipped_missing_fields": 0,
+        }
+
     if not users:
         logger.info("No users found in user sheet")
         return {
@@ -208,8 +209,11 @@ def process_jobs():
             "users_loaded": 0,
             "titles_found": 0,
             "cards_found": 0,
+            "matched_jobs": 0,
             "jobs_saved": 0,
             "emails_sent": 0,
+            "skipped_duplicates": 0,
+            "skipped_missing_fields": 0,
         }
 
     all_titles = set()
@@ -224,8 +228,11 @@ def process_jobs():
             "users_loaded": len(users),
             "titles_found": 0,
             "cards_found": 0,
+            "matched_jobs": 0,
             "jobs_saved": 0,
             "emails_sent": 0,
+            "skipped_duplicates": 0,
+            "skipped_missing_fields": 0,
         }
 
     keywords = " OR ".join(sorted(all_titles))
@@ -235,7 +242,7 @@ def process_jobs():
         "keywords": keywords,
         "location": JOB_LOCATION,
         "f_TPR": "r3600",
-        "sortBy": "DD"
+        "sortBy": "DD",
     }
 
     try:
@@ -247,20 +254,30 @@ def process_jobs():
         )
         logger.info(f"LinkedIn response status: {response.status_code}")
         response.raise_for_status()
-    except requests.RequestException as e:
+    except requests.RequestException:
         logger.exception("LinkedIn request failed")
         return {
             "status": "fetch_failed",
             "users_loaded": len(users),
             "titles_found": len(all_titles),
             "cards_found": 0,
+            "matched_jobs": 0,
             "jobs_saved": 0,
             "emails_sent": 0,
+            "skipped_duplicates": 0,
+            "skipped_missing_fields": 0,
         }
 
     soup = BeautifulSoup(response.text, "html.parser")
     cards = soup.find_all("li")
     logger.info(f"Found {len(cards)} LinkedIn cards")
+
+    # Read sent URLs once to avoid Google Sheets quota errors
+    try:
+        sent_urls = set(job_sheet.col_values(1))
+    except Exception:
+        logger.exception("Failed to load existing sent job URLs")
+        sent_urls = set()
 
     jobs_saved = 0
     emails_sent = 0
@@ -286,7 +303,7 @@ def process_jobs():
 
             job_url = raw_url.split("?")[0]
 
-            if job_already_sent(job_url):
+            if job_url in sent_urls:
                 skipped_duplicates += 1
                 continue
 
@@ -311,22 +328,23 @@ def process_jobs():
                 f"Link: {job_url}"
             )
 
-            successful_email_sends = 0
-            for email in matched_users:
-                if send_email("🚨 Job Alert", body, email):
-                    successful_email_sends += 1
-
-            emails_sent += successful_email_sends
-
-            if mark_job_as_sent(job_url, title, company, location):
+            # Save first so scraping result is preserved even if email is slow/fails
+            try:
+                job_sheet.append_row([job_url, title, company, location])
+                sent_urls.add(job_url)
                 jobs_saved += 1
+                logger.info(f"Saved job to sheet: {job_url}")
+            except Exception:
+                logger.exception(f"Error saving job {job_url}")
+                continue
 
             logger.info(f"Matched users for job {job_url}: {matched_users}")
-            emails_sent += 0
 
-            emails_sent += successful_email_sends
+            for email in matched_users:
+                if send_email("🚨 Job Alert", body, email):
+                    emails_sent += 1
 
-        except Exception as e:
+        except Exception:
             logger.exception("Error processing a job card")
             continue
 
